@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+
+# Minecraft data
+data/
+
+# Logs
+logs/
+
