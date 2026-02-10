@@ -8,7 +8,6 @@ import { MinecraftRconService } from './minecraft-rcon.service';
 export class DiscordService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(DiscordService.name);
   private client: Client | null = null;
-  private superuserIds = new Set<string>();
 
   constructor(
     private readonly config: ConfigService,
@@ -29,12 +28,6 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     if (!token) {
       throw new Error('DISCORD_TOKEN is required');
     }
-
-    const superusers = (this.config.get<string>('DISCORD_SUPERUSER_IDS') ?? '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
-    this.superuserIds = new Set(superusers);
 
     const client = new Client({
       intents: [GatewayIntentBits.Guilds],
@@ -72,15 +65,9 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  private isSuperuser(userId: string) {
-    if (this.superuserIds.size === 0) return true;
-    return this.superuserIds.has(userId);
-  }
-
   private async handleInteraction(interaction: Interaction) {
     if (!interaction.isChatInputCommand()) return;
 
-    const userId = interaction.user.id;
     const command = interaction.commandName;
 
     if (command === 'ping') {
@@ -97,12 +84,6 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     if (command === 'users') {
       const users = await this.rcon.listOnlineUsers();
       await interaction.reply({ content: users, ephemeral: true });
-      return;
-    }
-
-    const destructive = new Set(['start', 'stop', 'restart', 'save']);
-    if (destructive.has(command) && !this.isSuperuser(userId)) {
-      await interaction.reply({ content: '権限がありません', ephemeral: true });
       return;
     }
 

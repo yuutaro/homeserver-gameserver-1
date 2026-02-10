@@ -34,3 +34,14 @@
 - Test: `30004/tcp` → mc-test:25565
 
 Discord Bot は `ports:` で公開しません（Discord への接続は外向き）。
+
+## Modの入れ方（Forge）
+
+`mc-prod`/`mc-test` は `TYPE=FORGE` で起動し、以下の環境変数でModを自動ダウンロードできます（`.env` で設定）。
+
+- Modrinth（優先）: `MC_PROD_MODRINTH_PROJECTS`, `MC_TEST_MODRINTH_PROJECTS`
+- CurseForge（Modrinthに無いもの）: `MC_PROD_CURSEFORGE_FILES`, `MC_TEST_CURSEFORGE_FILES`
+  - 多くの場合 `CF_API_KEY` が必要です
+
+反映:
+- `docker compose up -d --force-recreate mc-prod mc-test`
