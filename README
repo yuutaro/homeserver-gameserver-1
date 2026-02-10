@@ -37,12 +37,20 @@ Discord Bot は `ports:` で公開しません（Discord への接続は外向�
 
 ## Modの入れ方（Forge）
 
-`mc-prod`/`mc-test` は `TYPE=FORGE` で起動し、`config/*.env` でModリストを管理します（Git管理対象）。
+`mc-prod`/`mc-test` は `TYPE=FORGE` で起動します。
 
-- `config/mc-test.env:1` / `config/mc-prod.env:1` を編集
-  - Modrinth（優先）: `MODRINTH_PROJECTS=...`（project slugをカンマ区切り）
-  - CurseForge（Modrinthに無いもの）: `CURSEFORGE_FILES=...`（file IDをカンマ区切り）
-- CurseForgeが必要な場合は `.env` の `CF_API_KEY` を設定（Secret扱い）
+### Prismの `modlist.csv` をそのまま使う（推奨）
+
+Prism Launcher から出力した `modlist.csv`（`名前,URL,バージョン`）を元に、Modrinth / CurseForge からMod jarを自動取得して `data/.../mods` に配置します。
+
+- 入力: `1.20.1 ver4.1 modlist.csv`（Prism出力）
+- 実行: `docker compose run --rm modsync-test` / `docker compose run --rm modsync-prod`
+- 出力:
+  - `data/mc-test/mods/*.jar`
+  - `data/mc-prod/mods/*.jar`
+  - 取得できないものは `data/*/mods/modsync.manual.csv` に理由付きで出ます
+
+CurseForgeからのダウンロードにAPIキーが必要な場合は `.env` の `CF_API_KEY` を設定してください（Secret扱い）。
 
 反映:
 - `docker compose up -d --force-recreate mc-prod mc-test`
@@ -52,7 +60,7 @@ Discord Bot は `ports:` で公開しません（Discord への接続は外向�
 Prism Launcherで検証し、差分をテスト環境→本番環境へ段階的に反映します。
 
 1) PrismでMod追加/更新して動作確認
-2) PrismのModリスト出力を見ながら `config/mc-test.env` の `MODRINTH_PROJECTS` / `CURSEFORGE_FILES` を更新
-3) `docker compose up -d --force-recreate mc-test` でテスト環境へ反映し、再確認
-4) OKなら同じ内容を `config/mc-prod.env` に反映
-5) PR→マージ（GitOps）し、サーバー側で `docker compose up -d --force-recreate mc-prod` で反映
+2) Prismの `modlist.csv` を更新してコミット
+3) `docker compose run --rm modsync-test` → `docker compose up -d --force-recreate mc-test` でテスト環境へ反映し、再確認
+4) OKなら `docker compose run --rm modsync-prod` → `docker compose up -d --force-recreate mc-prod` で本番へ反映
+5) 取得できないModは `data/*/mods/modsync.manual.csv` を見て対処（URL/配布形態の見直し等）

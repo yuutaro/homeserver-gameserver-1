@@ -1,4 +1,26 @@
 services:
+  modsync-prod:
+    image: node:24-alpine
+    working_dir: /work
+    environment:
+      CF_API_KEY: ${CF_API_KEY:-}
+    volumes:
+      - ./tools/modsync:/work:ro
+      - ./1.20.1 ver4.1 modlist.csv:/work/modlist.csv:ro
+      - ./data/mc-prod/mods:/out
+    command: ["node", "/work/modsync.mjs", "--csv", "/work/modlist.csv", "--out", "/out", "--mc", "1.20.1", "--loader", "forge"]
+
+  modsync-test:
+    image: node:24-alpine
+    working_dir: /work
+    environment:
+      CF_API_KEY: ${CF_API_KEY:-}
+    volumes:
+      - ./tools/modsync:/work:ro
+      - ./1.20.1 ver4.1 modlist.csv:/work/modlist.csv:ro
+      - ./data/mc-test/mods:/out
+    command: ["node", "/work/modsync.mjs", "--csv", "/work/modlist.csv", "--out", "/out", "--mc", "1.20.1", "--loader", "forge"]
+
   discord-bot:
     build:
       context: ./apps/discord-bot
@@ -39,6 +61,9 @@ services:
       - "30003:25565/tcp"
     networks:
       - internal
+    depends_on:
+      modsync-prod:
+        condition: service_completed_successfully
 
   mc-test:
     image: itzg/minecraft-server:latest
@@ -54,6 +79,9 @@ services:
       - "30004:25565/tcp"
     networks:
       - internal
+    depends_on:
+      modsync-test:
+        condition: service_completed_successfully
 
 networks:
   internal:
