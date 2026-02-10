@@ -1,8 +1,8 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client, Events, GatewayIntentBits, Interaction } from 'discord.js';
-import { DockerOpsService } from './docker-ops.service';
-import { MinecraftRconService } from './minecraft-rcon.service';
+import { DockerOpsService } from './docker-ops.service.js';
+import { MinecraftRconService } from './minecraft-rcon.service.js';
 
 @Injectable()
 export class DiscordService implements OnModuleInit, OnModuleDestroy {

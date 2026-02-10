@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DiscordModule } from './discord/discord.module';
+import { DiscordModule } from './discord/discord.module.js';
 
 @Module({
   imports: [
@@ -11,4 +11,3 @@ import { DiscordModule } from './discord/discord.module';
   ],
 })
 export class AppModule {}
-

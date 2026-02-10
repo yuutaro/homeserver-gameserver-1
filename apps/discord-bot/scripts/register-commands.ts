@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { REST, Routes } from 'discord.js';
-import { guildCommands } from '../src/discord/commands';
+import { guildCommands } from '../src/discord/commands.js';
 
 function required(name: string): string {
   const v = process.env[name];
@@ -24,4 +24,3 @@ main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
-
