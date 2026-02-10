@@ -28,21 +28,11 @@ services:
   mc-prod:
     image: itzg/minecraft-server:latest
     restart: unless-stopped
+    env_file:
+      - ./config/mc-prod.env
     environment:
-      EULA: "TRUE"
-      VERSION: "1.20.1"
-      ENABLE_RCON: "true"
-      RCON_PORT: "25575"
       RCON_PASSWORD: ${MC_PROD_RCON_PASSWORD:?set_in_.env}
-      # Keep the server port internal; host publishes 30003 -> 25565
-      SERVER_PORT: "25565"
-      TYPE: "FORGE"
-      # Auto-download mods (prefer Modrinth; use CurseForge for projects not on Modrinth)
-      MODRINTH_PROJECTS: ${MC_PROD_MODRINTH_PROJECTS:-}
-      CURSEFORGE_FILES: ${MC_PROD_CURSEFORGE_FILES:-}
       CF_API_KEY: ${CF_API_KEY:-}
-      # Optional tuning
-      MEMORY: "4G"
     volumes:
       - ./data/mc-prod:/data
     ports:
@@ -53,18 +43,11 @@ services:
   mc-test:
     image: itzg/minecraft-server:latest
     restart: unless-stopped
+    env_file:
+      - ./config/mc-test.env
     environment:
-      EULA: "TRUE"
-      VERSION: "1.20.1"
-      ENABLE_RCON: "true"
-      RCON_PORT: "25575"
       RCON_PASSWORD: ${MC_TEST_RCON_PASSWORD:?set_in_.env}
-      SERVER_PORT: "25565"
-      TYPE: "FORGE"
-      MODRINTH_PROJECTS: ${MC_TEST_MODRINTH_PROJECTS:-}
-      CURSEFORGE_FILES: ${MC_TEST_CURSEFORGE_FILES:-}
       CF_API_KEY: ${CF_API_KEY:-}
-      MEMORY: "2G"
     volumes:
       - ./data/mc-test:/data
     ports:

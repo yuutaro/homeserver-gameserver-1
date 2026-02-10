@@ -37,11 +37,22 @@ Discord Bot は `ports:` で公開しません（Discord への接続は外向�
 
 ## Modの入れ方（Forge）
 
-`mc-prod`/`mc-test` は `TYPE=FORGE` で起動し、以下の環境変数でModを自動ダウンロードできます（`.env` で設定）。
+`mc-prod`/`mc-test` は `TYPE=FORGE` で起動し、`config/*.env` でModリストを管理します（Git管理対象）。
 
-- Modrinth（優先）: `MC_PROD_MODRINTH_PROJECTS`, `MC_TEST_MODRINTH_PROJECTS`
-- CurseForge（Modrinthに無いもの）: `MC_PROD_CURSEFORGE_FILES`, `MC_TEST_CURSEFORGE_FILES`
-  - 多くの場合 `CF_API_KEY` が必要です
+- `config/mc-test.env:1` / `config/mc-prod.env:1` を編集
+  - Modrinth（優先）: `MODRINTH_PROJECTS=...`（project slugをカンマ区切り）
+  - CurseForge（Modrinthに無いもの）: `CURSEFORGE_FILES=...`（file IDをカンマ区切り）
+- CurseForgeが必要な場合は `.env` の `CF_API_KEY` を設定（Secret扱い）
 
 反映:
 - `docker compose up -d --force-recreate mc-prod mc-test`
+
+## Mod更新フロー（推奨）
+
+Prism Launcherで検証し、差分をテスト環境→本番環境へ段階的に反映します。
+
+1) PrismでMod追加/更新して動作確認
+2) PrismのModリスト出力を見ながら `config/mc-test.env` の `MODRINTH_PROJECTS` / `CURSEFORGE_FILES` を更新
+3) `docker compose up -d --force-recreate mc-test` でテスト環境へ反映し、再確認
+4) OKなら同じ内容を `config/mc-prod.env` に反映
+5) PR→マージ（GitOps）し、サーバー側で `docker compose up -d --force-recreate mc-prod` で反映
