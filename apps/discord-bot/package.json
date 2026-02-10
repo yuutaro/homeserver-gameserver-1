@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/src/main.js",
-    "register:commands": "npm run build && node dist/scripts/register-commands.js"
+    "register:commands": "node dist/scripts/register-commands.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
