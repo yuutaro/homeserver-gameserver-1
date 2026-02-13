@@ -13,6 +13,7 @@
 - `data/`: Minecraft データ（git管理外）
 - `logs/`: bot ログ（git管理外）
 - `.env.example`: 必要な環境変数のテンプレ
+- `docs/`: ドキュメント
 
 ## セットアップ（ローカル/自宅サーバー）
 
@@ -64,3 +65,7 @@ Prism Launcherで検証し、差分をテスト環境→本番環境へ段階的
 3) `docker compose run --rm modsync-test` → `docker compose up -d --force-recreate mc-test` でテスト環境へ反映し、再確認
 4) OKなら `docker compose run --rm modsync-prod` → `docker compose up -d --force-recreate mc-prod` で本番へ反映
 5) 取得できないModは `data/*/mods/modsync.manual.csv` を見て対処（URL/配布形態の見直し等）
+
+## 詳細ドキュメント
+
+- `docs/README.md`

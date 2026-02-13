@@ -6,7 +6,7 @@ services:
       CF_API_KEY: ${CF_API_KEY:-}
     volumes:
       - ./tools/modsync:/work:ro
-      - ./1.20.1 ver4.1 modlist.csv:/work/modlist.csv:ro
+      - ./${MODLIST_CSV:-1.20.1 ver4.1 modlist.csv}:/work/modlist.csv:ro
       - ./data/mc-prod/mods:/out
     command: ["node", "/work/modsync.mjs", "--csv", "/work/modlist.csv", "--out", "/out", "--mc", "1.20.1", "--loader", "forge"]
 
@@ -17,7 +17,7 @@ services:
       CF_API_KEY: ${CF_API_KEY:-}
     volumes:
       - ./tools/modsync:/work:ro
-      - ./1.20.1 ver4.1 modlist.csv:/work/modlist.csv:ro
+      - ./${MODLIST_CSV:-1.20.1 ver4.1 modlist.csv}:/work/modlist.csv:ro
       - ./data/mc-test/mods:/out
     command: ["node", "/work/modsync.mjs", "--csv", "/work/modlist.csv", "--out", "/out", "--mc", "1.20.1", "--loader", "forge"]
 
