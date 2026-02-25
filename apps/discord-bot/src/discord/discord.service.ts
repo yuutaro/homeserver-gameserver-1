@@ -90,7 +90,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       const extra = snapshot.servers.length > 30 ? `\n...and ${snapshot.servers.length - 30} more` : '';
       const err = snapshot.lastError ? `\nlastError: ${snapshot.lastError}` : '';
       await interaction.reply({
-        content: `servers: ${snapshot.servers.length}\nupdatedAt: ${updatedAt}\n${list}${extra}${err}`,
+        content: `### 起動可能サーバー一覧\nservers: ${snapshot.servers.length}\nupdatedAt: ${updatedAt}\n${list}${extra}${err}`,
       });
       return;
     }
@@ -100,40 +100,53 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       const snapshot = await this.servers.refresh();
       const updatedAt = snapshot.updatedAt ? snapshot.updatedAt.toISOString() : 'never';
       const err = snapshot.lastError ? `\nlastError: ${snapshot.lastError}` : '';
-      await interaction.editReply(`更新しました: ${snapshot.servers.length} servers\nupdatedAt: ${updatedAt}${err}`);
+      await interaction.editReply(`✅ サーバー一覧を更新しました: ${snapshot.servers.length} servers\nupdatedAt: ${updatedAt}${err}`);
       return;
     }
 
     if (command === 'status') {
       const status = await this.containers.status();
-      await interaction.reply({ content: formatStatus(status) });
+      const connectionInfo = formatConnectionInfo(this.config);
+      await interaction.reply({ content: `${formatStatusForHumans(status)}\n${connectionInfo}`.trim() });
       return;
     }
 
     if (command === 'users') {
       await interaction.deferReply();
       const users = await this.rcon.listOnlineUsers();
-      await interaction.editReply(users);
+      await interaction.editReply(`### 接続中ユーザー\n${users}`);
       return;
     }
 
     if (command === 'start') {
       await interaction.deferReply();
       const serverName = interaction.options.getString('server', true);
+      await interaction.editReply(`🚀 サーバー \`${serverName}\` を起動中...`);
       await this.containers.startExclusive(serverName);
-      await interaction.editReply(`起動しました: ${serverName}`);
+      const connectionInfo = formatConnectionInfo(this.config);
+      const message =
+        `🎉 **サーバー \`${serverName}\` の起動コマンドを送信しました！**\n` +
+        `実際に遊べるようになるまで2〜3分かかります。\n` +
+        `${connectionInfo}`;
+      await interaction.editReply(message.trim());
       return;
     }
 
     if (command === 'stop') {
       await interaction.deferReply();
+      const active = await this.containers.getActiveServerName();
+      if (!active) {
+        await interaction.editReply('✅ 稼働中のサーバーはありません。');
+        return;
+      }
       try {
+        await interaction.editReply(`💾 セーブして停止しています... (\`${active}\`)`);
         await this.rcon.stopGracefully();
       } catch {
         // ignore and fallback to docker stop/remove
       }
       await this.containers.stopAndRemoveIfExists();
-      await interaction.editReply('停止しました');
+      await interaction.editReply(`💤 **サーバー \`${active}\` が停止しました。** お疲れ様でした！`);
       return;
     }
 
@@ -141,18 +154,20 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       await interaction.deferReply();
       const active = await this.containers.getActiveServerName();
       if (!active) {
-        await interaction.editReply('稼働中のサーバーがありません');
+        await interaction.editReply('✅ 稼働中のサーバーがありません。');
         return;
       }
+      await interaction.editReply(`🔄 サーバー \`${active}\` を再起動中...`);
       await this.containers.startExclusive(active);
-      await interaction.editReply(`再起動しました: ${active}`);
+      const connectionInfo = formatConnectionInfo(this.config);
+      await interaction.editReply(`✅ **サーバー \`${active}\` を再起動しました。**\n${connectionInfo}`.trim());
       return;
     }
 
     if (command === 'save') {
       await interaction.deferReply();
       await this.rcon.saveAll();
-      await interaction.editReply('save-all を実行しました');
+      await interaction.editReply('💾 save-all を実行しました。');
       return;
     }
 
@@ -178,4 +193,32 @@ function formatStatus(status: MinecraftStatus): string {
   if (status.status === 'not_found') return 'mc-prod: not_found';
   const serverName = status.serverName ? ` server=${status.serverName}` : '';
   return `mc-prod: ${status.status}${serverName}`;
+}
+
+function formatStatusForHumans(status: MinecraftStatus): string {
+  if (status.status === 'not_found') {
+    return '### サーバー状態\n🔴 **コンテナ**: `not_found` (未作成)';
+  }
+
+  const serverName = status.serverName ?? '(unknown)';
+  if (status.status === 'running') {
+    return `### サーバー \`${serverName}\` の状態\n🟢 **コンテナ**: \`running\` (起動中)`;
+  }
+  if (status.status === 'exited') {
+    return `### サーバー \`${serverName}\` の状態\n🔴 **コンテナ**: \`exited\` (停止)`;
+  }
+  return `### サーバー \`${serverName}\` の状態\n❔ **コンテナ**: \`${status.status}\` (不明)`;
+}
+
+function formatConnectionInfo(config: ConfigService): string {
+  const hostPort = (config.get<string>('MC_HOST_PORT') ?? '').trim();
+  const port = hostPort || '25565';
+  const ddns = (config.get<string>('MC_CONNECT_DDNS') ?? '').trim();
+  const ip = (config.get<string>('MC_CONNECT_IP') ?? '').trim();
+  const lines: string[] = [];
+  lines.push('接続先:');
+  if (ip) lines.push(`- IPアドレス:\n\`\`\`\n${ip}:${port}\n\`\`\``);
+  if (ddns) lines.push(`- DDNS:\n\`\`\`\n${ddns}:${port}\n\`\`\``);
+  if (!ip && !ddns) lines.push(`- ポート:\n\`\`\`\n${port}\n\`\`\``);
+  return lines.join('\n');
 }

@@ -91,6 +91,10 @@ DATA_DIR=/opt/homeserver-gameserver-1/data
 # Minecraft publish ポート（数字のみ推奨）
 MC_HOST_PORT=30002
 
+# (任意) Botの返信に接続先を表示したい場合
+MC_CONNECT_IP=192.168.11.35
+MC_CONNECT_DDNS=example.com
+
 # Java固定したい場合
 MC_IMAGE=itzg/minecraft-server:java17
 ```
@@ -105,4 +109,3 @@ MC_IMAGE=itzg/minecraft-server:java17
 - `main` push で自動デプロイ（Botのみ）
 - runner は `/opt/homeserver-gameserver-1` を clone/pull して `scripts/deploy-bot.sh` を実行
 - デプロイ時にスラッシュコマンド登録（guild commands）を毎回実行
-
