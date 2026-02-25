@@ -12,3 +12,6 @@ logs/
 
 # Local production config (keep secrets out of git)
 config/bot.env
+
+# Local troubleshooting artifacts
+docker-logs*.txt

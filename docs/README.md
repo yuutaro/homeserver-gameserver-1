@@ -5,3 +5,4 @@
 - Discord設定（トークン・権限・招待）: `setup-discord.md`
 - Mod運用（手動更新）: `mods.md`
 - 運用メモ（起動/更新/トラブルシュート）: `operations.md`
+- トラブルシュート（詰まったポイント集）: `troubleshooting.md`
