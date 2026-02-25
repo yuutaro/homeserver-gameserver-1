@@ -34,7 +34,14 @@ export class MinecraftContainerService {
   }
 
   getHostPort(): number {
-    return Number(this.config.get<string>('MC_HOST_PORT') ?? '25565');
+    const raw = (this.config.get<string>('MC_HOST_PORT') ?? '25565').trim();
+    const normalized = raw.includes(':') ? raw.split(':', 1)[0] : raw;
+    const normalized2 = normalized.includes('/') ? normalized.split('/', 1)[0] : normalized;
+    const port = Number(normalized2);
+    if (!Number.isFinite(port) || port <= 0) {
+      throw new Error(`MC_HOST_PORT must be a port number (example: 30002). Got: ${raw}`);
+    }
+    return port;
   }
 
   async ensureNetworkExists() {
@@ -42,6 +49,27 @@ export class MinecraftContainerService {
     const networks = await this.docker.listNetworks({ filters: { name: [name] } as any });
     if (networks.length > 0) return;
     await this.docker.createNetwork({ Name: name, Driver: 'bridge' });
+  }
+
+  private async ensureImageExists(image: string) {
+    try {
+      await this.docker.getImage(image).inspect();
+      return;
+    } catch {
+      // pull below
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      this.docker.pull(image, (err: unknown, stream: unknown) => {
+        if (err) return reject(err);
+        if (!stream) return reject(new Error(`Failed to pull image (no stream): ${image}`));
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        this.docker.modem.followProgress(stream as any, (pullErr: unknown) => {
+          if (pullErr) return reject(pullErr);
+          resolve();
+        });
+      });
+    });
   }
 
   private async getContainerByName() {
@@ -108,6 +136,8 @@ export class MinecraftContainerService {
     const image = this.getImage();
     const hostPort = this.getHostPort();
 
+    await this.ensureImageExists(image);
+
     const envArray = Object.entries(env.values).map(([k, v]) => `${k}=${v}`);
 
     const container = await this.docker.createContainer({
@@ -134,4 +164,3 @@ export class MinecraftContainerService {
     await container.start();
   }
 }
-
