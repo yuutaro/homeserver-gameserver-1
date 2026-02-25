@@ -37,11 +37,6 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
 
     client.once(Events.ClientReady, (ready) => {
       this.logger.log(`Logged in as ${ready.user.tag}`);
-      try {
-        ready.user.setActivity('/servers /start /stop /status', { type: 0 });
-      } catch (e) {
-        this.logger.warn(`Failed to set activity: ${String(e)}`);
-      }
     });
 
     client.on(Events.InteractionCreate, async (interaction) => {
