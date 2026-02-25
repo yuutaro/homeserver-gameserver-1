@@ -6,8 +6,8 @@ services:
       - ${BOT_ENV_FILE:-.env}
     environment:
       DATA_DIR: ${DATA_DIR:-/data}
-      BOT_DATA_DIR: ${BOT_DATA_DIR:-/data}
-      DOCKER_DATA_DIR: ${DOCKER_DATA_DIR:-/data}
+      BOT_DATA_DIR: ${DATA_DIR:-/data}
+      DOCKER_DATA_DIR: ${DATA_DIR:-/data}
       MC_CONTAINER_NAME: ${MC_CONTAINER_NAME:-mc-prod}
       MC_IMAGE: ${MC_IMAGE:-itzg/minecraft-server:latest}
       MC_NETWORK: ${MC_NETWORK:-gameserver-net}
@@ -18,7 +18,7 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /data:/data:ro
+      - ${DATA_DIR:-/data}:${DATA_DIR:-/data}:ro
     networks:
       - gameserver-net
 

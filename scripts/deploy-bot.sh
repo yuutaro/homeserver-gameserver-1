@@ -4,7 +4,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-BOT_ENV_FILE="${BOT_ENV_FILE:-/etc/homeserver-gameserver/bot.env}"
+BOT_ENV_FILE="${BOT_ENV_FILE:-${ROOT_DIR}/config/bot.env}"
+DATA_DIR="${DATA_DIR:-${ROOT_DIR}/data}"
 
 if [[ ! -f "$BOT_ENV_FILE" ]]; then
   echo "BOT_ENV_FILE not found: $BOT_ENV_FILE" >&2
@@ -12,6 +13,7 @@ if [[ ! -f "$BOT_ENV_FILE" ]]; then
 fi
 
 export BOT_ENV_FILE
+export DATA_DIR
 
 docker compose -f infra/compose.bot.yaml up -d --build
 
@@ -19,4 +21,3 @@ docker compose -f infra/compose.bot.yaml up -d --build
 docker compose -f infra/compose.bot.yaml run --rm bot node dist/scripts/register-commands.js
 
 docker compose -f infra/compose.bot.yaml ps
-

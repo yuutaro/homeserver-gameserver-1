@@ -3,7 +3,7 @@
 自宅サーバー上で Docker を使って Minecraft サーバーを動かし、Discord Bot（NestJS + discord.js）からスラッシュコマンドで起動/停止/状態確認などを行う構成です。
 
 重要方針:
-- Minecraft のサーバーデータ（mods/world/config 等）は **本番ホストの `/data/` で手動管理**（Git/CDの対象外）
+- Minecraft のサーバーデータ（mods/world/config 等）は **本番ホストのプロジェクト配下 `data/` で手動管理**（Git/CDの対象外）
 - GitHub Actions（self-hosted runner）で **Botだけ** を自動デプロイ
 - Botは Discord Gateway/REST（外向き通信）で動作するため、**Bot用の受信ポート公開は不要**
 - Minecraft のゲーム通信は外部クライアントが接続するため、**ホストへ `25565/tcp` を bind/publish する**
@@ -15,38 +15,37 @@
 - `scripts/deploy-bot.sh`: self-hosted runner が実行するデプロイスクリプト
 - `docs/`: ドキュメント
 
-※ `/data/**`（サーバーデータ）は Git 管理しません。
+※ `data/**`（サーバーデータ）は Git 管理しません。
 
 ## セットアップ（本番ホスト）
 
 ### 1) サーバーデータを用意
 
-- `/data/<server-name>/` を作成し、サーバーデータ一式を配置
-- `/data/<server-name>/server.env` を作成（例: `EULA=TRUE`, `TYPE=FORGE`, `VERSION=1.20.1`, `ENABLE_RCON=true`, `RCON_PASSWORD=...`）
+- `/opt/homeserver-gameserver-1/data/<server-name>/` を作成し、サーバーデータ一式を配置
+- `/opt/homeserver-gameserver-1/data/<server-name>/server.env` を作成（例: `EULA=TRUE`, `TYPE=FORGE`, `VERSION=1.20.1`, `ENABLE_RCON=true`, `RCON_PASSWORD=...`）
 
 ### 2) Botの secrets を用意（Git管理外）
 
-- `/etc/homeserver-gameserver/bot.env` を作成し、最低限以下を設定:
+- `/opt/homeserver-gameserver-1/config/bot.env` を作成し、最低限以下を設定:
   - `DISCORD_TOKEN=...`
   - `DISCORD_CLIENT_ID=...`
   - `DISCORD_GUILD_ID=...`
 
 ### 3) Bot起動
 
-- `BOT_ENV_FILE=/etc/homeserver-gameserver/bot.env docker compose -f infra/compose.bot.yaml up -d --build`
+- `BOT_ENV_FILE=/opt/homeserver-gameserver-1/config/bot.env docker compose -f infra/compose.bot.yaml up -d --build`
 
 ### 4) スラッシュコマンド登録（ギルド）
 
-- `BOT_ENV_FILE=/etc/homeserver-gameserver/bot.env docker compose -f infra/compose.bot.yaml run --rm bot node dist/scripts/register-commands.js`
+- `BOT_ENV_FILE=/opt/homeserver-gameserver-1/config/bot.env docker compose -f infra/compose.bot.yaml run --rm bot node dist/scripts/register-commands.js`
 
 ## Discordコマンド
 
 - `/servers` : 起動可能サーバー一覧（キャッシュ）
-- `/update-server-list` : `/data` を再スキャンしてキャッシュ更新
+- `/update-server-list` : `data/` を再スキャンしてキャッシュ更新
 - `/start server:<server-name>` : 指定サーバーを排他的に起動（固定コンテナ名 `mc-prod`）
 - `/stop` / `/restart` / `/save` / `/status` / `/users`
 
 ## 詳細ドキュメント
 
 - `docs/README.md`
-

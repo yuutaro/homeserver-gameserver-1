@@ -14,9 +14,10 @@ jobs:
     steps:
       - name: Deploy bot
         env:
-          BOT_ENV_FILE: /etc/homeserver-gameserver/bot.env
+          BOT_ENV_FILE: /opt/homeserver-gameserver-1/config/bot.env
           DEPLOY_DIR: /opt/homeserver-gameserver-1
           REPO_URL: https://github.com/example-owner/homeserver-gameserver-1.git
+          DATA_DIR: /opt/homeserver-gameserver-1/data
         run: |
           set -euo pipefail
           if [[ ! -d "${DEPLOY_DIR}/.git" ]]; then
@@ -25,4 +26,4 @@ jobs:
           fi
           git -C "${DEPLOY_DIR}" fetch origin main
           git -C "${DEPLOY_DIR}" reset --hard origin/main
-          BOT_ENV_FILE="${BOT_ENV_FILE}" bash "${DEPLOY_DIR}/scripts/deploy-bot.sh"
+          BOT_ENV_FILE="${BOT_ENV_FILE}" DATA_DIR="${DATA_DIR}" bash "${DEPLOY_DIR}/scripts/deploy-bot.sh"
