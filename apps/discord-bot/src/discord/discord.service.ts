@@ -216,9 +216,14 @@ function formatConnectionInfo(config: ConfigService): string {
   const ddns = (config.get<string>('MC_CONNECT_DDNS') ?? '').trim();
   const ip = (config.get<string>('MC_CONNECT_IP') ?? '').trim();
   const lines: string[] = [];
-  lines.push('接続先:');
-  if (ip) lines.push(`- IPアドレス:\n\`\`\`\n${ip}:${port}\n\`\`\``);
-  if (ddns) lines.push(`- DDNS:\n\`\`\`\n${ddns}:${port}\n\`\`\``);
-  if (!ip && !ddns) lines.push(`- ポート:\n\`\`\`\n${port}\n\`\`\``);
+  if (ip) {
+    lines.push(`接続先IPアドレス:\n\`\`\`\n${ip}:${port}\n\`\`\``);
+  }
+  if (ddns) {
+    lines.push(`接続先アドレス (DDNS):\n\`\`\`\n${ddns}:${port}\n\`\`\``);
+  }
+  if (!ip && !ddns) {
+    lines.push(`接続先ポート:\n\`\`\`\n${port}\n\`\`\``);
+  }
   return lines.join('\n');
 }

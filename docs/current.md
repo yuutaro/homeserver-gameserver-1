@@ -92,7 +92,7 @@ DATA_DIR=/opt/homeserver-gameserver-1/data
 MC_HOST_PORT=30002
 
 # (任意) Botの返信に接続先を表示したい場合
-MC_CONNECT_IP=192.168.11.35
+MC_CONNECT_IP=
 MC_CONNECT_DDNS=example.com
 
 # Java固定したい場合
