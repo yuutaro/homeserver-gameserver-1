@@ -52,3 +52,4 @@
 - `docs/future.md`
 - `docs/runbooks/troubleshooting.md`
 - `docs/runbooks/systemd.md`
+- `docs/runbooks/pre-reboot-stop.md`
