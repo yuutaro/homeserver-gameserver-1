@@ -213,16 +213,17 @@ function formatStatusForHumans(status: MinecraftStatus): string {
 function formatConnectionInfo(config: ConfigService): string {
   const hostPort = (config.get<string>('MC_HOST_PORT') ?? '').trim();
   const port = hostPort || '25565';
+  const host = (config.get<string>('MC_CONNECT_HOST') ?? '').trim();
   const ddns = (config.get<string>('MC_CONNECT_DDNS') ?? '').trim();
   const ip = (config.get<string>('MC_CONNECT_IP') ?? '').trim();
   const lines: string[] = [];
-  if (ip) {
+  const preferredHost = host || ddns;
+  if (preferredHost) {
+    lines.push(`接続先アドレス:\n\`\`\`\n${preferredHost}:${port}\n\`\`\``);
+  } else if (ip) {
     lines.push(`接続先IPアドレス:\n\`\`\`\n${ip}:${port}\n\`\`\``);
   }
-  if (ddns) {
-    lines.push(`接続先アドレス (DDNS):\n\`\`\`\n${ddns}:${port}\n\`\`\``);
-  }
-  if (!ip && !ddns) {
+  if (!preferredHost && !ip) {
     lines.push(`接続先ポート:\n\`\`\`\n${port}\n\`\`\``);
   }
   return lines.join('\n');

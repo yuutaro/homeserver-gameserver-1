@@ -93,7 +93,7 @@ MC_HOST_PORT=30002
 
 # (任意) Botの返信に接続先を表示したい場合
 MC_CONNECT_IP=
-MC_CONNECT_DDNS=example.com
+MC_CONNECT_HOST=example.com
 
 # Java固定したい場合
 MC_IMAGE=itzg/minecraft-server:java17
