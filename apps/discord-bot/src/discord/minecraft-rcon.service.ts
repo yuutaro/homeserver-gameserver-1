@@ -54,6 +54,14 @@ export class MinecraftRconService {
     });
   }
 
+  async say(message: string, serverName?: string) {
+    const target = await this.resolveTargetServerName(serverName);
+    const sanitized = message.replace(/\r?\n/g, ' ');
+    await this.withRcon(target, async (rcon) => {
+      await rcon.send(`say ${sanitized}`);
+    });
+  }
+
   async stopGracefully(serverName?: string) {
     const target = await this.resolveTargetServerName(serverName);
     await this.withRcon(target, async (rcon) => {
@@ -70,4 +78,3 @@ export class MinecraftRconService {
     });
   }
 }
-

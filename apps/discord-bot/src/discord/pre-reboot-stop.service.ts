@@ -8,7 +8,9 @@ type HhMm = { hour: number; minute: number };
 @Injectable()
 export class PreRebootStopService implements OnModuleInit {
   private readonly logger = new Logger(PreRebootStopService.name);
-  private timer: NodeJS.Timeout | null = null;
+  private stopTimer: NodeJS.Timeout | null = null;
+  private announceTimer: NodeJS.Timeout | null = null;
+  private countdownTimer: NodeJS.Timeout | null = null;
   private running = false;
   private lastRunDateJst: string | null = null; // YYYY-MM-DD
 
@@ -27,6 +29,9 @@ export class PreRebootStopService implements OnModuleInit {
 
     const timeStr = this.config.get<string>('PRE_REBOOT_STOP_TIME_JST') ?? '08:55';
     const graceMinutes = Number(this.config.get<string>('PRE_REBOOT_STOP_GRACE_MINUTES') ?? '30');
+    const announceEnabled = (this.config.get<string>('PRE_REBOOT_ANNOUNCE_ENABLED') ?? 'true').toLowerCase();
+    const announceMinutesBefore = Number(this.config.get<string>('PRE_REBOOT_ANNOUNCE_MINUTES_BEFORE') ?? '5');
+    const countdownSeconds = Number(this.config.get<string>('PRE_REBOOT_COUNTDOWN_SECONDS') ?? '30');
 
     const hhmm = parseHhMm(timeStr);
     if (!hhmm) {
@@ -48,22 +53,82 @@ export class PreRebootStopService implements OnModuleInit {
       await this.stopOnce(today);
     }
 
-    this.scheduleNext(hhmm);
+    this.scheduleNext(hhmm, {
+      announceEnabled: announceEnabled === 'true' || announceEnabled === '1' || announceEnabled === 'yes',
+      announceMinutesBefore: clampInt(announceMinutesBefore, 0, 60),
+      countdownSeconds: clampInt(countdownSeconds, 0, 60),
+    });
   }
 
-  private scheduleNext(hhmm: HhMm) {
-    if (this.timer) clearTimeout(this.timer);
+  private scheduleNext(
+    hhmm: HhMm,
+    announce: { announceEnabled: boolean; announceMinutesBefore: number; countdownSeconds: number },
+  ) {
+    if (this.stopTimer) clearTimeout(this.stopTimer);
+    if (this.announceTimer) clearTimeout(this.announceTimer);
+    if (this.countdownTimer) clearTimeout(this.countdownTimer);
     const now = new Date();
     const nextUtc = toNextUtcFromJst(hhmm, now);
     const delay = Math.max(1_000, nextUtc.getTime() - now.getTime());
     this.logger.log(`Next pre-reboot stop scheduled at ${nextUtc.toISOString()} (UTC)`);
-    this.timer = setTimeout(async () => {
+
+    if (announce.announceEnabled) {
+      const announceAt = new Date(nextUtc.getTime() - announce.announceMinutesBefore * 60_000);
+      const announceDelay = announceAt.getTime() - now.getTime();
+      if (announceDelay > 1_000) {
+        this.logger.log(
+          `Pre-reboot announce scheduled at ${announceAt.toISOString()} (UTC) (${announce.announceMinutesBefore} min before)`,
+        );
+        this.announceTimer = setTimeout(async () => {
+          try {
+            await this.announceUpcomingStop(announce.announceMinutesBefore);
+          } catch (e) {
+            this.logger.warn(`Failed to announce upcoming stop: ${String(e)}`);
+          }
+        }, announceDelay);
+      }
+
+      const countdownAt = new Date(nextUtc.getTime() - announce.countdownSeconds * 1000);
+      const countdownDelay = countdownAt.getTime() - now.getTime();
+      if (announce.countdownSeconds > 0 && countdownDelay > 1_000) {
+        this.logger.log(
+          `Pre-reboot countdown scheduled at ${countdownAt.toISOString()} (UTC) (${announce.countdownSeconds}s)`,
+        );
+        this.countdownTimer = setTimeout(async () => {
+          try {
+            await this.countdownStop(announce.countdownSeconds);
+          } catch (e) {
+            this.logger.warn(`Failed to run countdown: ${String(e)}`);
+          }
+        }, countdownDelay);
+      }
+    }
+
+    this.stopTimer = setTimeout(async () => {
       try {
         await this.stopOnce(formatJstDate(new Date()));
       } finally {
-        this.scheduleNext(hhmm);
+        this.scheduleNext(hhmm, announce);
       }
     }, delay);
+  }
+
+  private async announceUpcomingStop(minutesBefore: number) {
+    const active = await this.containers.getActiveServerName();
+    if (!active) return;
+    if (minutesBefore <= 0) return;
+    await this.rcon.say(`サーバーは ${minutesBefore} 分後に再起動のため停止します。`, active);
+  }
+
+  private async countdownStop(seconds: number) {
+    const active = await this.containers.getActiveServerName();
+    if (!active) return;
+    if (seconds <= 0) return;
+    for (let i = seconds; i >= 1; i -= 1) {
+      await this.rcon.say(`サーバー停止まで ${i} 秒...`, active);
+      // eslint-disable-next-line no-await-in-loop
+      await sleep(1000);
+    }
   }
 
   private async stopOnce(todayJst: string) {
@@ -137,3 +202,11 @@ function toNextUtcFromJst(hhmm: HhMm, now: Date): Date {
   return new Date(todayUtc.getTime() + 24 * 60 * 60_000);
 }
 
+function clampInt(n: number, min: number, max: number): number {
+  if (!Number.isFinite(n)) return min;
+  return Math.min(max, Math.max(min, Math.floor(n)));
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise<void>((r) => setTimeout(r, ms));
+}
