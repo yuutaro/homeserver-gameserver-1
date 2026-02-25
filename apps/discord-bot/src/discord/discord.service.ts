@@ -49,9 +49,9 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
           const message = err?.message ? `: ${err.message}` : '';
           const content = `エラーが発生しました${message}`;
           if (interaction.deferred || interaction.replied) {
-            await interaction.followUp({ content, ephemeral: true });
+            await interaction.followUp({ content });
           } else {
-            await interaction.reply({ content, ephemeral: true });
+            await interaction.reply({ content });
           }
         }
       }
@@ -79,7 +79,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     const command = interaction.commandName;
 
     if (command === 'ping') {
-      await interaction.reply({ content: 'pong', ephemeral: true });
+      await interaction.reply({ content: 'pong' });
       return;
     }
 
@@ -91,13 +91,12 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       const err = snapshot.lastError ? `\nlastError: ${snapshot.lastError}` : '';
       await interaction.reply({
         content: `servers: ${snapshot.servers.length}\nupdatedAt: ${updatedAt}\n${list}${extra}${err}`,
-        ephemeral: true,
       });
       return;
     }
 
     if (command === 'update-server-list') {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply();
       const snapshot = await this.servers.refresh();
       const updatedAt = snapshot.updatedAt ? snapshot.updatedAt.toISOString() : 'never';
       const err = snapshot.lastError ? `\nlastError: ${snapshot.lastError}` : '';
@@ -107,19 +106,19 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
 
     if (command === 'status') {
       const status = await this.containers.status();
-      await interaction.reply({ content: formatStatus(status), ephemeral: true });
+      await interaction.reply({ content: formatStatus(status) });
       return;
     }
 
     if (command === 'users') {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply();
       const users = await this.rcon.listOnlineUsers();
       await interaction.editReply(users);
       return;
     }
 
     if (command === 'start') {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply();
       const serverName = interaction.options.getString('server', true);
       await this.containers.startExclusive(serverName);
       await interaction.editReply(`起動しました: ${serverName}`);
@@ -127,7 +126,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (command === 'stop') {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply();
       try {
         await this.rcon.stopGracefully();
       } catch {
@@ -139,7 +138,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (command === 'restart') {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply();
       const active = await this.containers.getActiveServerName();
       if (!active) {
         await interaction.editReply('稼働中のサーバーがありません');
@@ -151,13 +150,13 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (command === 'save') {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply();
       await this.rcon.saveAll();
       await interaction.editReply('save-all を実行しました');
       return;
     }
 
-    await interaction.reply({ content: '未対応のコマンドです', ephemeral: true });
+    await interaction.reply({ content: '未対応のコマンドです' });
   }
 
   private async handleAutocomplete(interaction: AutocompleteInteraction) {
