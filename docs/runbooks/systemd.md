@@ -1,9 +1,10 @@
 # systemd（自動起動 / 定時リブート）
 
-ここでは以下を systemd で管理します。
+ここでは「このプロジェクトに直接関係する bot 起動」を systemd で管理します。
 
 - ホスト再起動後に Discord bot コンテナを確実に起動する
-- 毎日 05:00（サーバーのローカル時刻）にホストを再起動する
+
+ホスト自体の定時 reboot は、運用ポリシーが環境依存になりやすいため **このリポジトリでは扱いません**（必要ならサーバー側で手動配置してください）。
 
 ## 0) 前提（重要）
 
@@ -14,12 +15,7 @@
   - `/opt/homeserver-gameserver-1/data/`
 - Docker / Docker Compose plugin がインストール済みであること
 
-また、`systemd` の `OnCalendar` は **ホストのローカル時刻**を使うため、JSTで動かしたい場合はホストのタイムゾーンがJSTである必要があります。
-
-確認:
-```bash
-timedatectl status
-```
+（参考）`systemd` のタイマーを使う場合、`OnCalendar` は **ホストのローカル時刻**を使います。時刻関連の確認は `timedatectl status` で行えます。
 
 ## 1) Botコンテナを自動起動する（推奨）
 
@@ -46,36 +42,8 @@ sudo systemctl status homeserver-gameserver-bot.service --no-pager
 docker compose -f /opt/homeserver-gameserver-1/infra/compose.bot.yaml ps
 ```
 
-## 2) 毎日 05:00 に再起動する（注意）
-
-Minecraftプレイ中に再起動すると切断されます。
-利用者が少ない時間帯に設定してください。
-
-### 2-1) service / timer を配置
+## 2) 無効化
 
 ```bash
-cd /opt/homeserver-gameserver-1
-sudo cp systemd/homeserver-daily-reboot.service /etc/systemd/system/
-sudo cp systemd/homeserver-daily-reboot.timer /etc/systemd/system/
-```
-
-### 2-2) timer を有効化
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now homeserver-daily-reboot.timer
-```
-
-### 2-3) 次回実行時刻の確認
-
-```bash
-systemctl list-timers --all | rg homeserver-daily-reboot
-```
-
-## 3) 無効化
-
-```bash
-sudo systemctl disable --now homeserver-daily-reboot.timer
 sudo systemctl disable --now homeserver-gameserver-bot.service
 ```
-
