@@ -97,6 +97,11 @@ MC_CONNECT_HOST=example.com
 
 # Java固定したい場合
 MC_IMAGE=itzg/minecraft-server:java17
+
+# (任意) ホスト定時rebootの前にMinecraftを停止したい場合（JST）
+PRE_REBOOT_STOP_ENABLED=true
+PRE_REBOOT_STOP_TIME_JST=08:55
+PRE_REBOOT_STOP_GRACE_MINUTES=30
 ```
 
 ### `infra/compose.bot.yaml`（Git管理）
