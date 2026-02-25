@@ -8,13 +8,6 @@ services:
       DATA_DIR: ${DATA_DIR:-/data}
       BOT_DATA_DIR: ${DATA_DIR:-/data}
       DOCKER_DATA_DIR: ${DATA_DIR:-/data}
-      MC_CONTAINER_NAME: ${MC_CONTAINER_NAME:-mc-prod}
-      MC_IMAGE: ${MC_IMAGE:-itzg/minecraft-server:latest}
-      MC_NETWORK: ${MC_NETWORK:-gameserver-net}
-      MC_HOST_PORT: ${MC_HOST_PORT:-25565}
-      MC_RCON_HOST: ${MC_RCON_HOST:-mc-prod}
-      MC_RCON_PORT: ${MC_RCON_PORT:-25575}
-      DISCORD_DISABLE_LOGIN: ${DISCORD_DISABLE_LOGIN:-false}
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
