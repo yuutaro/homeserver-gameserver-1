@@ -1,52 +1,20 @@
-# Mod運用（Forge / Prism Launcher）
+# Mod運用（手動 / Forge）
 
-Minecraft は `FORGE` で起動します（`VERSION=1.20.1`）。
+Minecraft はサーバーごとに `server.env`（例: `TYPE=FORGE`, `VERSION=1.20.1`）で起動設定します。
 
 ## 方針
 
-Prism Launcher でクライアント側の検証を行い、Prismの `modlist.csv` 出力を **サーバー側の正**として扱います。
-サーバーはそのCSVを読み込み、Modrinth / CurseForge から jar を自動取得して `data/*/mods` に配置します。
+Prism Launcher でクライアント側の検証を行い、サーバー側は本番ホストの `/data/<server-name>/mods/` を **SSHで手動更新**します。
 
-## 入力ファイル（modlist.csv）
+このリポジトリには過去の検討として `tools/modsync`（PrismのCSVから jar を自動取得するツール）が残っていますが、**本番運用の前提にはしません**。
 
-リポジトリ直下のCSVを使用します。
+## 手動更新の流れ（推奨）
 
-- `.env` の `MODLIST_CSV` にファイル名（パス）を設定
-  - 例: `MODLIST_CSV=1.20.1 ver4.1 modlist.csv`
+1. Prism Launcher で mod を更新してクライアント側で検証
+2. サーバー側の `/data/<server-name>/mods/` に jar をアップロード（必要なら古いjarを削除）
+3. Discord で `/restart`（または `/stop` → `/start server:<server-name>`）で反映
 
-CSVは Prism の出力（`名前,URL,バージョン`）を想定します。
-URL は紹介ページ（例: `https://modrinth.com/mod/<id>`）でも問題ありません。
-
-## 同期（ダウンロード）
-
-テスト環境:
-- `docker compose run --rm modsync-test`
-
-本番環境:
-- `docker compose run --rm modsync-prod`
-
-出力先:
-- `data/mc-test/mods`
-- `data/mc-prod/mods`
-
-## 取得できないMod
-
-次のようなケースは自動取得できないことがあります:
-- URLが空（Prism出力にURLが無い）
-- GitHub等の配布形態で、APIからjarを解決できない
-- CurseForgeで `CF_API_KEY` が必要だが未設定
-
-その場合は `data/*/mods/modsync.manual.csv` に理由付きで出力されます。
-
-## 反映（Minecraft再起動）
-
-Mod同期後にサーバーを再作成します:
-
-- `docker compose up -d --force-recreate mc-test`
-- `docker compose up -d --force-recreate mc-prod`
-
-## よくある注意点
+## 注意点
 
 - クライアントとサーバーの Mod 構成がズレると接続できません
-- CurseForgeから取得する場合は `.env` の `CF_API_KEY` を Secret として扱ってください
-
+- config系（`/data/<server-name>/world/serverconfig/*.toml` など）の変更も同様に手動で反映します

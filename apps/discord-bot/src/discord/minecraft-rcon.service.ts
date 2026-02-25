@@ -1,21 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Rcon } from 'rcon-client';
+import { MinecraftContainerService } from './minecraft-container.service.js';
+import { ServerEnvService } from './server-env.service.js';
 
 @Injectable()
 export class MinecraftRconService {
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+    private readonly config: ConfigService,
+    private readonly containers: MinecraftContainerService,
+    private readonly serverEnv: ServerEnvService,
+  ) {}
 
-  private async withRcon<T>(fn: (rcon: Rcon) => Promise<T>): Promise<T> {
-    const host = this.config.get<string>('MC_PROD_RCON_HOST') ?? 'mc-prod';
-    const port = Number(this.config.get<string>('MC_PROD_RCON_PORT') ?? '25575');
-    const password = this.config.get<string>('MC_PROD_RCON_PASSWORD');
+  private async resolveTargetServerName(serverName?: string): Promise<string> {
+    if (serverName) return serverName;
+    const active = await this.containers.getActiveServerName();
+    if (!active) throw new Error('No active server (mc-prod is not running)');
+    return active;
+  }
+
+  private getRconHost(): string {
+    return this.config.get<string>('MC_RCON_HOST') ?? this.containers.getContainerName();
+  }
+
+  private getDefaultRconPort(): number {
+    return Number(this.config.get<string>('MC_RCON_PORT') ?? '25575');
+  }
+
+  private async withRcon<T>(serverName: string, fn: (rcon: Rcon) => Promise<T>): Promise<T> {
+    const env = await this.serverEnv.readServerEnv(serverName);
+    const password = env.values.RCON_PASSWORD;
     if (!password) {
-      throw new Error('MC_PROD_RCON_PASSWORD is required');
+      throw new Error(`RCON_PASSWORD is required in ${env.envFilePathOnBot}`);
     }
+    const port = Number(env.values.RCON_PORT ?? this.getDefaultRconPort());
 
     const rcon = await Rcon.connect({
-      host,
+      host: this.getRconHost(),
       port,
       password,
     });
@@ -26,14 +47,24 @@ export class MinecraftRconService {
     }
   }
 
-  async saveAll() {
-    await this.withRcon(async (rcon) => {
+  async saveAll(serverName?: string) {
+    const target = await this.resolveTargetServerName(serverName);
+    await this.withRcon(target, async (rcon) => {
       await rcon.send('save-all');
     });
   }
 
-  async listOnlineUsers(): Promise<string> {
-    return await this.withRcon(async (rcon) => {
+  async stopGracefully(serverName?: string) {
+    const target = await this.resolveTargetServerName(serverName);
+    await this.withRcon(target, async (rcon) => {
+      await rcon.send('save-all');
+      await rcon.send('stop');
+    });
+  }
+
+  async listOnlineUsers(serverName?: string): Promise<string> {
+    const target = await this.resolveTargetServerName(serverName);
+    return await this.withRcon(target, async (rcon) => {
       const res = await rcon.send('list');
       return res || '応答なし';
     });

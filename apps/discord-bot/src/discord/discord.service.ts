@@ -1,8 +1,9 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Client, Events, GatewayIntentBits, Interaction } from 'discord.js';
-import { DockerOpsService } from './docker-ops.service.js';
+import { AutocompleteInteraction, Client, Events, GatewayIntentBits, Interaction } from 'discord.js';
+import { MinecraftContainerService, MinecraftStatus } from './minecraft-container.service.js';
 import { MinecraftRconService } from './minecraft-rcon.service.js';
+import { ServerRegistryService } from './server-registry.service.js';
 
 @Injectable()
 export class DiscordService implements OnModuleInit, OnModuleDestroy {
@@ -11,7 +12,8 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
 
   constructor(
     private readonly config: ConfigService,
-    private readonly dockerOps: DockerOpsService,
+    private readonly servers: ServerRegistryService,
+    private readonly containers: MinecraftContainerService,
     private readonly rcon: MinecraftRconService,
   ) {}
 
@@ -44,7 +46,8 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
         const err = error as Error;
         this.logger.error('Interaction handling failed', err?.stack ?? String(error));
         if (interaction.isRepliable()) {
-          const content = 'エラーが発生しました（ログを確認してください）';
+          const message = err?.message ? `: ${err.message}` : '';
+          const content = `エラーが発生しました${message}`;
           if (interaction.deferred || interaction.replied) {
             await interaction.followUp({ content, ephemeral: true });
           } else {
@@ -66,6 +69,11 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async handleInteraction(interaction: Interaction) {
+    if (interaction.isAutocomplete()) {
+      await this.handleAutocomplete(interaction);
+      return;
+    }
+
     if (!interaction.isChatInputCommand()) return;
 
     const command = interaction.commandName;
@@ -75,37 +83,70 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
+    if (command === 'servers') {
+      const snapshot = this.servers.getSnapshot();
+      const updatedAt = snapshot.updatedAt ? snapshot.updatedAt.toISOString() : 'never';
+      const list = snapshot.servers.slice(0, 30).join(', ') || '(empty)';
+      const extra = snapshot.servers.length > 30 ? `\n...and ${snapshot.servers.length - 30} more` : '';
+      const err = snapshot.lastError ? `\nlastError: ${snapshot.lastError}` : '';
+      await interaction.reply({
+        content: `servers: ${snapshot.servers.length}\nupdatedAt: ${updatedAt}\n${list}${extra}${err}`,
+        ephemeral: true,
+      });
+      return;
+    }
+
+    if (command === 'update-server-list') {
+      await interaction.deferReply({ ephemeral: true });
+      const snapshot = await this.servers.refresh();
+      const updatedAt = snapshot.updatedAt ? snapshot.updatedAt.toISOString() : 'never';
+      const err = snapshot.lastError ? `\nlastError: ${snapshot.lastError}` : '';
+      await interaction.editReply(`更新しました: ${snapshot.servers.length} servers\nupdatedAt: ${updatedAt}${err}`);
+      return;
+    }
+
     if (command === 'status') {
-      const status = await this.dockerOps.getServiceStatus('mc-prod');
-      await interaction.reply({ content: `mc-prod: ${status}`, ephemeral: true });
+      const status = await this.containers.status();
+      await interaction.reply({ content: formatStatus(status), ephemeral: true });
       return;
     }
 
     if (command === 'users') {
+      await interaction.deferReply({ ephemeral: true });
       const users = await this.rcon.listOnlineUsers();
-      await interaction.reply({ content: users, ephemeral: true });
+      await interaction.editReply(users);
       return;
     }
 
     if (command === 'start') {
       await interaction.deferReply({ ephemeral: true });
-      await this.dockerOps.startService('mc-prod');
-      await interaction.editReply('起動しました');
+      const serverName = interaction.options.getString('server', true);
+      await this.containers.startExclusive(serverName);
+      await interaction.editReply(`起動しました: ${serverName}`);
       return;
     }
 
     if (command === 'stop') {
       await interaction.deferReply({ ephemeral: true });
-      await this.rcon.saveAll();
-      await this.dockerOps.stopService('mc-prod');
-      await interaction.editReply('停止しました（save-all 実行済み）');
+      try {
+        await this.rcon.stopGracefully();
+      } catch {
+        // ignore and fallback to docker stop/remove
+      }
+      await this.containers.stopAndRemoveIfExists();
+      await interaction.editReply('停止しました');
       return;
     }
 
     if (command === 'restart') {
       await interaction.deferReply({ ephemeral: true });
-      await this.dockerOps.restartService('mc-prod');
-      await interaction.editReply('再起動しました');
+      const active = await this.containers.getActiveServerName();
+      if (!active) {
+        await interaction.editReply('稼働中のサーバーがありません');
+        return;
+      }
+      await this.containers.startExclusive(active);
+      await interaction.editReply(`再起動しました: ${active}`);
       return;
     }
 
@@ -118,4 +159,24 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
 
     await interaction.reply({ content: '未対応のコマンドです', ephemeral: true });
   }
+
+  private async handleAutocomplete(interaction: AutocompleteInteraction) {
+    if (interaction.commandName !== 'start') {
+      await interaction.respond([]);
+      return;
+    }
+    const focused = String(interaction.options.getFocused() ?? '');
+    const all = this.servers.getServersCached();
+    const filtered = all
+      .filter((s) => s.toLowerCase().includes(focused.toLowerCase()))
+      .slice(0, 25)
+      .map((s) => ({ name: s, value: s }));
+    await interaction.respond(filtered);
+  }
+}
+
+function formatStatus(status: MinecraftStatus): string {
+  if (status.status === 'not_found') return 'mc-prod: not_found';
+  const serverName = status.serverName ? ` server=${status.serverName}` : '';
+  return `mc-prod: ${status.status}${serverName}`;
 }

@@ -1,9 +1,17 @@
 import { Module } from '@nestjs/common';
 import { DiscordService } from './discord.service.js';
-import { DockerOpsService } from './docker-ops.service.js';
+import { MinecraftContainerService } from './minecraft-container.service.js';
 import { MinecraftRconService } from './minecraft-rcon.service.js';
+import { ServerEnvService } from './server-env.service.js';
+import { ServerRegistryService } from './server-registry.service.js';
 
 @Module({
-  providers: [DiscordService, DockerOpsService, MinecraftRconService],
+  providers: [
+    DiscordService,
+    ServerEnvService,
+    ServerRegistryService,
+    MinecraftContainerService,
+    MinecraftRconService,
+  ],
 })
 export class DiscordModule {}

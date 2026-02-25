@@ -1,9 +1,9 @@
 services:
-  discord-bot:
+  bot:
     build:
-      context: ./apps/discord-bot
+      context: ../apps/discord-bot
     env_file:
-      - ${BOT_ENV_FILE:-.env}
+      - ${BOT_ENV_FILE}
     environment:
       DATA_DIR: ${DATA_DIR:-/data}
       BOT_DATA_DIR: ${BOT_DATA_DIR:-/data}

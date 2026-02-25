@@ -1,0 +1,22 @@
+name: Deploy discord-bot (self-hosted)
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-bot
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy bot
+        env:
+          BOT_ENV_FILE: /etc/homeserver-gameserver/bot.env
+        run: bash scripts/deploy-bot.sh
+
