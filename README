@@ -39,7 +39,7 @@
 
 - `BOT_ENV_FILE=/opt/homeserver-gameserver-1/config/bot.env docker compose -f infra/compose.bot.yaml run --rm bot node dist/scripts/register-commands.js`
 
-## Discordコマンド
+## Discordコマンドaa
 
 - `/servers` : 起動可能サーバー一覧（キャッシュ）
 - `/update-server-list` : `data/` を再スキャンしてキャッシュ更新
