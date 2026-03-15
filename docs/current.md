@@ -123,3 +123,10 @@ PRE_REBOOT_COUNTDOWN_SECONDS=30
 - `main` push で自動デプロイ（Botのみ）
 - runner は `/opt/homeserver-gameserver-1` を clone/pull して `scripts/deploy-bot.sh` を実行
 - デプロイ時にスラッシュコマンド登録（guild commands）を毎回実行
+- `scripts/deploy-bot.sh` は本番 checkout と本番 `BOT_ENV_FILE` / `DATA_DIR` 以外では失敗する
+
+## 再発防止ガード
+
+- 開発用 `.env.example` は `DISCORD_DISABLE_LOGIN=true` を既定値にしている
+- Bot は `DATA_DIR=/opt/homeserver-gameserver-1/data` 以外では、`ALLOW_NON_PROD_DISCORD_LOGIN=true` を明示しない限り Discord にログインしない
+- `scripts/deploy-bot.sh` は `ALLOW_NON_PROD_DEPLOY=true` を明示しない限り、本番 checkout 以外での実行を拒否する

@@ -19,6 +19,10 @@
 
 ## セットアップ（本番ホスト）
 
+注意:
+- `scripts/deploy-bot.sh` は **本番 checkout `/opt/homeserver-gameserver-1` 専用** です
+- 開発環境では `.env` の `DISCORD_DISABLE_LOGIN=true` を維持し、ローカル Bot が本番 token で Discord に接続しないようにします
+
 ### 1) サーバーデータを用意
 
 - `/opt/homeserver-gameserver-1/data/<server-name>/` を作成し、サーバーデータ一式を配置
@@ -39,7 +43,7 @@
 
 - `BOT_ENV_FILE=/opt/homeserver-gameserver-1/config/bot.env docker compose -f infra/compose.bot.yaml run --rm bot node dist/scripts/register-commands.js`
 
-## Discordコマンドaa
+## Discordコマンド
 
 - `/servers` : 起動可能サーバー一覧（キャッシュ）
 - `/update-server-list` : `data/` を再スキャンしてキャッシュ更新

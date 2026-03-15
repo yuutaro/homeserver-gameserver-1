@@ -6,6 +6,7 @@ import { MinecraftRconService } from './minecraft-rcon.service.js';
 import { ServerRegistryService } from './server-registry.service.js';
 
 const MAX_DISCORD_CODE_BLOCK_LENGTH = 1800;
+const PROD_DATA_DIR = '/opt/homeserver-gameserver-1/data';
 
 @Injectable()
 export class DiscordService implements OnModuleInit, OnModuleDestroy {
@@ -25,6 +26,18 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       (this.config.get<string>('DISCORD_DISABLE_LOGIN') ?? '') === '1';
     if (disableLogin) {
       this.logger.warn('DISCORD_DISABLE_LOGIN is enabled; skipping Discord login');
+      return;
+    }
+
+    const allowNonProdLogin =
+      (this.config.get<string>('ALLOW_NON_PROD_DISCORD_LOGIN') ?? '').toLowerCase() === 'true' ||
+      (this.config.get<string>('ALLOW_NON_PROD_DISCORD_LOGIN') ?? '') === '1';
+    const dataDir = (this.config.get<string>('BOT_DATA_DIR') ?? this.config.get<string>('DATA_DIR') ?? '').trim();
+    if (!allowNonProdLogin && dataDir !== PROD_DATA_DIR) {
+      this.logger.error(
+        `Blocking Discord login outside production data dir. DATA_DIR=${dataDir || '(unset)'} expected=${PROD_DATA_DIR}`,
+      );
+      this.logger.warn('Set DISCORD_DISABLE_LOGIN=true for local work, or ALLOW_NON_PROD_DISCORD_LOGIN=true to override.');
       return;
     }
 
@@ -55,10 +68,14 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
         if (interaction.isRepliable()) {
           const message = err?.message ? `: ${err.message}` : '';
           const content = `エラーが発生しました${message}`;
-          if (interaction.deferred || interaction.replied) {
-            await interaction.followUp({ content });
-          } else {
-            await interaction.reply({ content });
+          try {
+            if (interaction.deferred || interaction.replied) {
+              await interaction.followUp({ content });
+            } else {
+              await interaction.reply({ content });
+            }
+          } catch (replyError) {
+            this.logger.warn(`Failed to send interaction error response: ${String(replyError)}`);
           }
         }
       }
