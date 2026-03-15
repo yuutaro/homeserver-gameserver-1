@@ -44,6 +44,7 @@
 - `/servers` : 起動可能サーバー一覧（キャッシュ）
 - `/update-server-list` : `data/` を再スキャンしてキャッシュ更新
 - `/start server:<server-name>` : 指定サーバーを排他的に起動（固定コンテナ名 `mc-prod`）
+- `/rcon command:<command>` : 稼働中のサーバーへ任意のRCONコマンドを送信
 - `/stop` / `/restart` / `/save` / `/status` / `/users`
 
 ## 詳細ドキュメント

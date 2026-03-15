@@ -25,7 +25,7 @@
 
 - Discord のスラッシュコマンドを受け取り、結果を返信する（Gateway方式）
 - Docker を操作して Minecraft コンテナ `mc-prod` を作成/削除する（排他起動）
-- RCON で `save-all` / `stop` / `list` を実行する
+- RCON で任意コマンドを実行する（`save-all` / `stop` / `list` など）
 
 ### コマンド一覧（権限チェック無し）
 
@@ -33,11 +33,15 @@
 - `/update-server-list` : `data/` を再スキャンして一覧キャッシュ更新
 - `/start server:<server-name>` : 指定サーバーを排他的に起動（固定コンテナ名 `mc-prod`）
   - `server` 引数は Discord の **autocomplete** で候補提示（choicesの再登録はしない）
+- `/rcon command:<command>` : 稼働中の `mc-prod` に任意のRCONコマンドを送信
 - `/stop` : 停止（可能なら RCON で save/stop → その後コンテナ削除）
 - `/restart` : 再起動（同じ server-name で作り直し）
 - `/save` : RCON `save-all`
 - `/status` : `mc-prod` の稼働状態と server-name
 - `/users` : RCON `list`（接続中ユーザー）
+
+注意:
+- `/rcon` は権限チェック無しで任意コマンドを送れるため、Bot を使える Discord ユーザーは実質的にサーバーオペレータ相当です
 
 ### 排他制御（重要）
 

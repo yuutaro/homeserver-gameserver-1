@@ -54,6 +54,19 @@ export class MinecraftRconService {
     });
   }
 
+  async sendCommand(command: string, serverName?: string): Promise<string> {
+    const target = await this.resolveTargetServerName(serverName);
+    const sanitized = command.replace(/\r?\n/g, ' ').trim();
+    if (!sanitized) {
+      throw new Error('RCON command is required');
+    }
+
+    return await this.withRcon(target, async (rcon) => {
+      const res = await rcon.send(sanitized);
+      return res || '応答なし';
+    });
+  }
+
   async say(message: string, serverName?: string) {
     const target = await this.resolveTargetServerName(serverName);
     const sanitized = message.replace(/\r?\n/g, ' ');

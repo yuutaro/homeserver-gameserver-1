@@ -18,5 +18,14 @@ export const guildCommands = [
   new SlashCommandBuilder().setName('stop').setDescription('Minecraftサーバーを停止'),
   new SlashCommandBuilder().setName('restart').setDescription('Minecraftサーバーを再起動'),
   new SlashCommandBuilder().setName('save').setDescription('Minecraftサーバーで save-all'),
+  new SlashCommandBuilder()
+    .setName('rcon')
+    .setDescription('稼働中のMinecraftサーバーへRCONコマンドを送信')
+    .addStringOption((opt) =>
+      opt
+        .setName('command')
+        .setDescription('送信するRCONコマンド')
+        .setRequired(true),
+    ),
   new SlashCommandBuilder().setName('users').setDescription('接続中ユーザー一覧を表示'),
 ].map((c) => c.toJSON());

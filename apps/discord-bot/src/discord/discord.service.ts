@@ -5,6 +5,8 @@ import { MinecraftContainerService, MinecraftStatus } from './minecraft-containe
 import { MinecraftRconService } from './minecraft-rcon.service.js';
 import { ServerRegistryService } from './server-registry.service.js';
 
+const MAX_DISCORD_CODE_BLOCK_LENGTH = 1800;
+
 @Injectable()
 export class DiscordService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(DiscordService.name);
@@ -38,7 +40,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     client.once(Events.ClientReady, (ready) => {
       this.logger.log(`Logged in as ${ready.user.tag}`);
       try {
-        ready.user.setActivity('/servers /start /stop /status', { type: 0 });
+        ready.user.setActivity('/servers /start /rcon /status', { type: 0 });
       } catch (e) {
         this.logger.warn(`Failed to set activity: ${String(e)}`);
       }
@@ -176,6 +178,14 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
+    if (command === 'rcon') {
+      await interaction.deferReply();
+      const rawCommand = interaction.options.getString('command', true);
+      const response = await this.rcon.sendCommand(rawCommand);
+      await interaction.editReply(formatRconReply(rawCommand, response));
+      return;
+    }
+
     await interaction.reply({ content: '未対応のコマンドです' });
   }
 
@@ -232,4 +242,14 @@ function formatConnectionInfo(config: ConfigService): string {
     lines.push(`接続先ポート:\n\`\`\`\n${port}\n\`\`\``);
   }
   return lines.join('\n');
+}
+
+function formatRconReply(command: string, response: string): string {
+  const sanitizedCommand = command.replace(/\r?\n/g, ' ').replace(/`/g, "'").trim();
+  const sanitizedResponse = response.replace(/\0/g, '').replace(/```/g, "'''").trim() || '応答なし';
+  const clipped =
+    sanitizedResponse.length > MAX_DISCORD_CODE_BLOCK_LENGTH
+      ? `${sanitizedResponse.slice(0, MAX_DISCORD_CODE_BLOCK_LENGTH - 14)}\n... (truncated)`
+      : sanitizedResponse;
+  return `### RCON実行結果\ncommand: \`${sanitizedCommand}\`\nresponse:\n\`\`\`\n${clipped}\n\`\`\``;
 }
