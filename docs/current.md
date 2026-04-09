@@ -88,6 +88,8 @@ MOD構成によっては Java バージョン不一致でクラッシュしま�
 DISCORD_TOKEN=...
 DISCORD_CLIENT_ID=...
 DISCORD_GUILD_ID=...
+# 複数ある場合はカンマ区切り
+# DISCORD_GUILD_ID=guild1,guild2,guild3
 
 # データ置き場（本番ホストの絶対パス）
 DATA_DIR=/opt/homeserver-gameserver-1/data
@@ -123,6 +125,7 @@ PRE_REBOOT_COUNTDOWN_SECONDS=30
 - `main` push で自動デプロイ（Botのみ）
 - runner は `/opt/homeserver-gameserver-1` を clone/pull して `scripts/deploy-bot.sh` を実行
 - デプロイ時にスラッシュコマンド登録（guild commands）を毎回実行
+- `DISCORD_GUILD_ID` はカンマ区切りで複数 guild を指定でき、登録スクリプトが各 guild に対して順に登録する
 - `scripts/deploy-bot.sh` は本番 checkout と本番 `BOT_ENV_FILE` / `DATA_DIR` 以外では失敗する
 
 ## 再発防止ガード

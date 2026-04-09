@@ -33,7 +33,7 @@
 - `/opt/homeserver-gameserver-1/config/bot.env` を作成し、最低限以下を設定:
   - `DISCORD_TOKEN=...`
   - `DISCORD_CLIENT_ID=...`
-  - `DISCORD_GUILD_ID=...`
+  - `DISCORD_GUILD_ID=...` または `guild1,guild2,...`
 
 ### 3) Bot起動
 
@@ -42,6 +42,7 @@
 ### 4) スラッシュコマンド登録（ギルド）
 
 - `BOT_ENV_FILE=/opt/homeserver-gameserver-1/config/bot.env docker compose -f infra/compose.bot.yaml run --rm bot node dist/scripts/register-commands.js`
+- `DISCORD_GUILD_ID` はカンマ区切りで複数 guild を指定可能
 
 ## Discordコマンド
 
