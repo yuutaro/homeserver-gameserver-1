@@ -127,9 +127,21 @@ PRE_REBOOT_COUNTDOWN_SECONDS=30
 
 - `main` push で自動デプロイ（Botのみ）
 - runner は `DEPLOY_DIR` repository variable の場所を clone/pull して `scripts/deploy-bot.sh` を実行
+- workflow の本番ホスト固有値は GitHub Actions の **Repository variables** で管理する
+  - `BOT_ENV_FILE`: 本番ホスト上の `config/bot.env` の絶対パス
+  - `DEPLOY_DIR`: 本番ホスト上の checkout 先
+  - `DATA_DIR`: 本番ホスト上の Minecraft サーバーデータ置き場
+- Repository variables は非機密の設定値専用とし、`DISCORD_TOKEN` や RCON パスワードは置かない
 - デプロイ時にスラッシュコマンド登録（guild commands）を毎回実行
 - `DISCORD_GUILD_ID` はカンマ区切りで複数 guild を指定でき、登録スクリプトが各 guild に対して順に登録する
 - `scripts/deploy-bot.sh` は本番 checkout と本番 `BOT_ENV_FILE` / `DATA_DIR` 以外では失敗する
+
+## 公開リポジトリ化に関する運用
+
+- GitHub Actions workflow には `${{ vars.DATA_DIR }}` のような参照名だけを置き、本番ホスト固有の値を直接コミットしない
+- Actions Variables は公開リポジトリのファイルとして閲覧されるものではないが、Secrets ではないため workflow logs に出力され得る
+- 機密値は本番ホストの `config/bot.env` で管理し、GitHub Actions Variables / Git 管理ファイルには置かない
+- `systemd/` は Git 管理外とし、本番ホスト側で必要な unit/timer を作成する
 
 ## 再発防止ガード
 
