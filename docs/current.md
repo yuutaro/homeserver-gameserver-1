@@ -101,6 +101,9 @@ MC_HOST_PORT=30002
 MC_CONNECT_IP=
 MC_CONNECT_HOST=example.com
 
+# production data dir guard
+PROD_DATA_DIR=/opt/homeserver-gameserver-1/data
+
 # Java固定したい場合
 MC_IMAGE=itzg/minecraft-server:java17
 

@@ -29,4 +29,4 @@ jobs:
           fi
           git -C "${DEPLOY_DIR}" fetch origin main
           git -C "${DEPLOY_DIR}" reset --hard origin/main
-          BOT_ENV_FILE="${BOT_ENV_FILE}" DATA_DIR="${DATA_DIR}" bash "${DEPLOY_DIR}/scripts/deploy-bot.sh"
+          PROD_ROOT_DIR="${DEPLOY_DIR}" BOT_ENV_FILE="${BOT_ENV_FILE}" DATA_DIR="${DATA_DIR}" bash "${DEPLOY_DIR}/scripts/deploy-bot.sh"

@@ -14,6 +14,7 @@ services:
       DATA_DIR: ${DATA_DIR}
       BOT_DATA_DIR: ${DATA_DIR}
       DOCKER_DATA_DIR: ${DATA_DIR}
+      PROD_DATA_DIR: ${DATA_DIR}
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
