@@ -25,9 +25,9 @@ https://discord.com/oauth2/authorize?client_id=<DISCORD_CLIENT_ID>&scope=bot%20a
 実装上、Discord 側で使っている intent は `GatewayIntentBits.Guilds` のみです。
 
 根拠:
-- [discord.service.ts](/path/to/homeserver-gameserver-1/apps/discord-bot/src/discord/discord.service.ts)
-- [commands.ts](/path/to/homeserver-gameserver-1/apps/discord-bot/src/discord/commands.ts)
-- [register-commands.ts](/path/to/homeserver-gameserver-1/apps/discord-bot/scripts/register-commands.ts)
+- `apps/discord-bot/src/discord/discord.service.ts`
+- `apps/discord-bot/src/discord/commands.ts`
+- `apps/discord-bot/scripts/register-commands.ts`
 
 ## 必要な scopes
 

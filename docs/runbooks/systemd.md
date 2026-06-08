@@ -19,13 +19,13 @@
 
 ## 1) Botコンテナを自動起動する（推奨）
 
-このリポジトリには unit のテンプレが `systemd/` にあります。
+systemd unit はホスト固有情報を含むため Git 管理しません。必要な場合は本番ホスト側で作成してください。
 
 ### 1-1) unit を配置
 
 ```bash
 cd /opt/homeserver-gameserver-1
-sudo cp systemd/homeserver-gameserver-bot.service /etc/systemd/system/
+sudo editor /etc/systemd/system/homeserver-gameserver-bot.service
 ```
 
 ### 1-2) 有効化・起動

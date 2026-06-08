@@ -15,8 +15,8 @@
 
 ```bash
 cd /opt/homeserver-gameserver-1
-sudo cp systemd/homeserver-gameserver-mc-pre-reboot.service /etc/systemd/system/
-sudo cp systemd/homeserver-gameserver-mc-pre-reboot.timer /etc/systemd/system/
+sudo editor /etc/systemd/system/homeserver-gameserver-mc-pre-reboot.service
+sudo editor /etc/systemd/system/homeserver-gameserver-mc-pre-reboot.timer
 
 sudo systemctl daemon-reload
 sudo systemctl enable --now homeserver-gameserver-mc-pre-reboot.timer
@@ -44,4 +44,3 @@ journalctl -u homeserver-gameserver-mc-pre-reboot.service -n 200 --no-pager
 ```bash
 sudo systemctl disable --now homeserver-gameserver-mc-pre-reboot.timer
 ```
-

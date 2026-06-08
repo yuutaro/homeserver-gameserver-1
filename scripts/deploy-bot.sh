@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-PROD_ROOT_DIR="/opt/homeserver-gameserver-1"
+PROD_ROOT_DIR="${PROD_ROOT_DIR:-/opt/homeserver-gameserver-1}"
 PROD_BOT_ENV_FILE="${PROD_ROOT_DIR}/config/bot.env"
 PROD_DATA_DIR="${PROD_ROOT_DIR}/data"
 

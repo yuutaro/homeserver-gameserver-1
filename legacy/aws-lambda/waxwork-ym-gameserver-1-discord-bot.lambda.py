@@ -9,9 +9,9 @@ PUBLIC_KEY = os.environ["DISCORD_PUBLIC_KEY"]
 SSM_PARAMETER_PATH_PREFIX = os.environ["SSM_PARAMETER_PATH_PREFIX"]
 
 # Worker Lambda function names
-START_LAMBDA_NAME = "waxwork-ym-gameserver-1-discord-bot-start-worker"
-STOP_LAMBDA_NAME = "waxwork-ym-gameserver-1-discord-bot-stop-worker"
-STATUS_LAMBDA_NAME = "waxwork-ym-gameserver-1-discord-bot-status-worker"
+START_LAMBDA_NAME = os.environ["START_LAMBDA_NAME"]
+STOP_LAMBDA_NAME = os.environ["STOP_LAMBDA_NAME"]
+STATUS_LAMBDA_NAME = os.environ["STATUS_LAMBDA_NAME"]
 
 verify_key = VerifyKey(bytes.fromhex(PUBLIC_KEY))
 lambda_client = boto3.client("lambda")
@@ -116,4 +116,3 @@ def lambda_handler(event, context):
         return {"statusCode": 401, "body": "Invalid request signature"}
 
     return {"statusCode": 404, "body": "Not Found"}
-

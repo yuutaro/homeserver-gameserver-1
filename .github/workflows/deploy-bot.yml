@@ -14,12 +14,15 @@ jobs:
     steps:
       - name: Deploy bot
         env:
-          BOT_ENV_FILE: /opt/homeserver-gameserver-1/config/bot.env
-          DEPLOY_DIR: /opt/homeserver-gameserver-1
-          REPO_URL: https://github.com/example-owner/homeserver-gameserver-1.git
-          DATA_DIR: /opt/homeserver-gameserver-1/data
+          BOT_ENV_FILE: ${{ vars.BOT_ENV_FILE }}
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+          DATA_DIR: ${{ vars.DATA_DIR }}
         run: |
           set -euo pipefail
+          : "${BOT_ENV_FILE:?set repository variable BOT_ENV_FILE}"
+          : "${DEPLOY_DIR:?set repository variable DEPLOY_DIR}"
+          : "${DATA_DIR:?set repository variable DATA_DIR}"
           if [[ ! -d "${DEPLOY_DIR}/.git" ]]; then
             mkdir -p "$(dirname "${DEPLOY_DIR}")"
             git clone "${REPO_URL}" "${DEPLOY_DIR}"

@@ -13,5 +13,8 @@ logs/
 # Local production config (keep secrets out of git)
 config/bot.env
 
+# Host-specific service units
+systemd/
+
 # Local troubleshooting artifacts
 docker-logs*.txt
