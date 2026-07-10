@@ -6,14 +6,14 @@
 
 1. **ポートpublishが想定通りか**
 ```bash
-docker ps --filter name=mc-prod --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+docker ps --filter name=gameserver-prod --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
 ```
 
 - 期待: `0.0.0.0:<MC_HOST_PORT>->25565/tcp`
 
 2. **起動完了しているか（ログ）**
 ```bash
-docker logs -f mc-prod
+docker logs -f gameserver-prod
 ```
 
 - 目安: `Done (` が出るまで待つ（Forge+MODは数分かかることがある）
@@ -28,7 +28,7 @@ sudo ss -ltnp | rg ':30002' || true
 `Connection refused` は「ポートへ到達したが、受け手がlistenしていない」状態です。
 
 よくある原因:
-- `mc-prod` がまだ起動中（起動完了前）
+- `gameserver-prod` がまだ起動中（起動完了前）
 - MODクラッシュでサーバープロセスが落ちている
 
 ## 2) `No such image: itzg/minecraft-server:...`
@@ -58,7 +58,7 @@ docker pull itzg/minecraft-server:latest
 確認:
 ```bash
 free -h
-docker stats --no-stream mc-prod
+docker stats --no-stream gameserver-prod
 ```
 
 ## 5) envのtypo（地味に致命的）
@@ -69,6 +69,6 @@ docker stats --no-stream mc-prod
 
 まずログで疑う:
 ```bash
-docker logs --tail 200 mc-prod
+docker logs --tail 200 gameserver-prod
 ```
 

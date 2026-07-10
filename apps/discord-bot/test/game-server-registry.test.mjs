@@ -31,24 +31,19 @@ test('registry caches only profile metadata and never server secrets', async () 
   }
 });
 
-test('shared runtime settings prefer generic names and preserve legacy fallback', () => {
-  const legacy = new GameServerManager(
-    new ConfigService({ MC_CONTAINER_NAME: 'mc-prod', MC_NETWORK: 'gameserver-net' }),
-    {},
-    {},
-  );
-  assert.equal(legacy.getContainerName(), 'mc-prod');
-  assert.equal(legacy.getNetworkName(), 'gameserver-net');
+test('shared runtime uses generic names and stable defaults', () => {
+  const defaults = new GameServerManager(new ConfigService({}), {}, {});
+  assert.equal(defaults.getContainerName(), 'gameserver-prod');
+  assert.equal(defaults.getNetworkName(), 'gameserver-net');
 
-  const generic = new GameServerManager(
+  const configured = new GameServerManager(
     new ConfigService({
-      GAMESERVER_CONTAINER_NAME: 'gameserver-prod',
-      GAMESERVER_NETWORK: 'shared-net',
-      MC_CONTAINER_NAME: 'mc-prod',
+      GAMESERVER_CONTAINER_NAME: ' custom-gameserver ',
+      GAMESERVER_NETWORK: ' shared-net ',
     }),
     {},
     {},
   );
-  assert.equal(generic.getContainerName(), 'gameserver-prod');
-  assert.equal(generic.getNetworkName(), 'shared-net');
+  assert.equal(configured.getContainerName(), 'custom-gameserver');
+  assert.equal(configured.getNetworkName(), 'shared-net');
 });

@@ -41,7 +41,7 @@ data/
 
 全ゲームを通じてコンテナは1つだけです。`/start` は設定検証とイメージ取得後、既存コンテナを停止・削除し、選択されたドライバーの定義で作り直します。
 
-新しい設定名は `GAMESERVER_CONTAINER_NAME` です。移行中の本番環境では `MC_CONTAINER_NAME=mc-prod` をフォールバックとして認識します。
+共通コンテナ名は `GAMESERVER_CONTAINER_NAME` で指定し、未指定時は `gameserver-prod` を使用します。
 
 コンテナには次のラベルを付けます。
 
@@ -51,7 +51,7 @@ com.homeserver.serverName=<server-id>
 com.homeserver.gameType=<game-type>
 ```
 
-既存の `mc-prod` に `gameType` ラベルがない場合もMinecraftとして認識します。
+管理対象はコンテナ名に加えて `serverName` ラベルでも検出します。命名変更前のコンテナも排他的な停止・置換対象となり、`gameType` ラベルがない場合はMinecraftとして認識します。
 
 ## Bot内部構造
 
@@ -102,4 +102,4 @@ DiscordService
 
 - ゲーム非依存アーキテクチャへの移行は完了しているが、実装済みドライバーはMinecraftのみ
 - Project Zomboidのドライバー、UDPポート、2ボリューム構成、実データ投入は次段階
-- 本番確認完了までは既存コンテナ名 `mc-prod` を維持できる
+- 共通実行スロットの標準コンテナ名は `gameserver-prod`

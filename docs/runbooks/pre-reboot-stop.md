@@ -1,46 +1,44 @@
-# 定時リブート前にMinecraftを停止する（08:55 → 09:00 reboot）
+# 定時リブート前にゲームサーバーを停止する
 
-ホストが systemd timer により毎日 09:00（JST）に再起動する運用の場合、Minecraft サーバーを事前に安全停止しておくと破損リスクを下げられます。
+ホストを定時再起動する場合、Discord Botの `PreRebootStopService` が現在のゲームドライバーを通して、稼働中サーバーを保存・停止します。
 
-このリポジトリでは、`mc-prod` コンテナに対して **08:55** に `rcon-cli save-all` → `rcon-cli stop` を試み、止まらない場合はタイムアウト後に `docker stop` する systemd unit を提供します。
+## 設定
 
-## 前提
+本番ホストの `config/bot.env` に設定します。
 
-- ホストのタイムゾーンがJSTであること（`OnCalendar` はローカル時刻基準）
-  - 確認: `timedatectl status`
-- `mc-prod` が `itzg/minecraft-server` 系のイメージで動いていること
-  - `rcon-cli` がコンテナ内で利用可能で、`RCON_PASSWORD` が環境変数として設定されていること
+```env
+PRE_REBOOT_STOP_ENABLED=true
+PRE_REBOOT_STOP_TIME_JST=08:55
+PRE_REBOOT_STOP_GRACE_MINUTES=30
 
-## インストール
-
-```bash
-cd /opt/homeserver-gameserver-1
-sudo editor /etc/systemd/system/homeserver-gameserver-mc-pre-reboot.service
-sudo editor /etc/systemd/system/homeserver-gameserver-mc-pre-reboot.timer
-
-sudo systemctl daemon-reload
-sudo systemctl enable --now homeserver-gameserver-mc-pre-reboot.timer
+PRE_REBOOT_ANNOUNCE_ENABLED=true
+PRE_REBOOT_ANNOUNCE_MINUTES_BEFORE=5
+PRE_REBOOT_COUNTDOWN_SECONDS=30
 ```
 
-## 動作確認
+時刻はJST固定です。例では08:55に停止し、ホスト側の09:00再起動に備えます。
 
-次回実行時刻:
+## 動作
+
+1. 稼働中の `gameserver-prod` とサーバープロファイルをDockerラベルから特定
+2. ゲームドライバー経由で停止予定を告知
+3. ゲーム固有の保存・正常停止を実行
+4. 正常停止に失敗した場合もDocker stop/removeへフォールバック
+
+Minecraftドライバーでは `say`、`save-all`、`stop` を使用します。今後ほかのゲームを追加した場合は、そのドライバーが対応するコマンドやシグナルを実行します。
+
+## 確認
+
+Botログで次を確認します。
+
 ```bash
-systemctl list-timers --all | rg homeserver-gameserver-mc-pre-reboot
+BOT_ENV_FILE=/opt/homeserver-gameserver-1/config/bot.env \
+DATA_DIR=/opt/homeserver-gameserver-1/data \
+docker compose -f infra/compose.bot.yaml logs --tail 200 bot
 ```
 
-手動実行:
-```bash
-sudo systemctl start homeserver-gameserver-mc-pre-reboot.service
-```
-
-ログ:
-```bash
-journalctl -u homeserver-gameserver-mc-pre-reboot.service -n 200 --no-pager
-```
-
-## 無効化
+有効時には次回停止時刻がUTCで記録されます。停止後は次も確認します。
 
 ```bash
-sudo systemctl disable --now homeserver-gameserver-mc-pre-reboot.timer
+docker ps -a --filter name=gameserver-prod
 ```

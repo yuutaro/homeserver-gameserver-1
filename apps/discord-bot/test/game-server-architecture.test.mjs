@@ -61,7 +61,7 @@ test('minecraft driver preserves the current image, mount and port contract', ()
   };
   driver.validate(server);
   const options = driver.createContainerOptions(server, {
-    containerName: 'mc-prod',
+    containerName: 'gameserver-prod',
     networkName: 'gameserver-net',
   });
   assert.equal(options.Image, 'itzg/minecraft-server:java17');

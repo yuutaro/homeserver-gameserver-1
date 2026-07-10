@@ -28,15 +28,11 @@ export class GameServerManager {
   ) {}
 
   getContainerName(): string {
-    return this.config.get<string>('GAMESERVER_CONTAINER_NAME') ??
-      this.config.get<string>('MC_CONTAINER_NAME') ??
-      'mc-prod';
+    return this.config.get<string>('GAMESERVER_CONTAINER_NAME')?.trim() || 'gameserver-prod';
   }
 
   getNetworkName(): string {
-    return this.config.get<string>('GAMESERVER_NETWORK') ??
-      this.config.get<string>('MC_NETWORK') ??
-      'gameserver-net';
+    return this.config.get<string>('GAMESERVER_NETWORK')?.trim() || 'gameserver-net';
   }
 
   async getActiveServerName(): Promise<string | null> {
@@ -45,7 +41,7 @@ export class GameServerManager {
   }
 
   async status(): Promise<GameServerStatus> {
-    const container = await this.getContainerByName();
+    const container = await this.getManagedContainer();
     if (!container) return { status: 'not_found' };
     const inspect = await container.inspect();
     const labels = inspect.Config?.Labels ?? {};
@@ -127,7 +123,7 @@ export class GameServerManager {
   }
 
   private async getActiveMetadata(): Promise<{ serverId: string | null; gameType: string } | null> {
-    const container = await this.getContainerByName();
+    const container = await this.getManagedContainer();
     if (!container) return null;
     const inspect = await container.inspect();
     const labels = inspect.Config?.Labels ?? {};
@@ -137,9 +133,24 @@ export class GameServerManager {
     };
   }
 
-  private async getContainerByName() {
+  private async getManagedContainer() {
+    const configured = await this.inspectContainer(this.getContainerName());
+    if (configured) return configured;
+
+    const managed = await this.docker.listContainers({
+      all: true,
+      filters: { label: [LABEL_SERVER_NAME] } as any,
+    });
+    if (managed.length > 1) {
+      throw new Error('Multiple managed game-server containers found; refusing an ambiguous operation');
+    }
+    if (managed.length === 1) return this.docker.getContainer(managed[0].Id);
+    return null;
+  }
+
+  private async inspectContainer(name: string) {
     try {
-      const container = this.docker.getContainer(this.getContainerName());
+      const container = this.docker.getContainer(name);
       await container.inspect();
       return container;
     } catch {
@@ -173,7 +184,7 @@ export class GameServerManager {
   }
 
   private async stopAndRemoveUnlocked(): Promise<void> {
-    const container = await this.getContainerByName();
+    const container = await this.getManagedContainer();
     if (!container) return;
     try {
       await container.stop({ t: 30 });

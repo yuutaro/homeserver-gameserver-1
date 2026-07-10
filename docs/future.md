@@ -5,7 +5,7 @@
 ## 優先度: 高（運用事故を減らす）
 
 1) **CPU制限の設定**
-- `config/bot.env` に `MC_CPU_LIMIT` を追加し、`mc-prod` 生成時に `NanoCpus` を設定する
+- `config/bot.env` に `MC_CPU_LIMIT` を追加し、`gameserver-prod` 生成時に `NanoCpus` を設定する
 
 2) **ステータスの精度改善**
 - `/status` で「コンテナがrunning」だけでなく「Minecraftが起動完了して25565をlistenしているか」も表示
@@ -25,7 +25,7 @@
 - ※サーバーデータは手動運用前提のまま
 
 2) **ログの取り回し**
-- `/tail` のようなコマンドで `mc-prod` の直近ログをDiscordに返す（個人情報/長文に注意）
+- `/tail` のようなコマンドで `gameserver-prod` の直近ログをDiscordに返す（個人情報/長文に注意）
 
 ## 優先度: 低（将来案）
 

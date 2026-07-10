@@ -20,7 +20,7 @@ https://discord.com/oauth2/authorize?client_id=<DISCORD_CLIENT_ID>&scope=bot%20a
 
 - Discord Gateway で slash command interaction を受け取る
 - slash command の応答を返す
-- Minecraft コンテナの起動/停止/RCON 実行をホスト側で行う
+- ゲームサーバーコンテナの起動/停止/RCON 実行をホスト側で行う
 
 実装上、Discord 側で使っている intent は `GatewayIntentBits.Guilds` のみです。
 
@@ -69,7 +69,7 @@ https://discord.com/oauth2/authorize?client_id=<DISCORD_CLIENT_ID>&scope=bot%20a
 ## 注意点
 
 - `/rcon` は Discord 権限ではなく、Bot 側のアプリ機能として任意 RCON コマンドを送れます
-- そのため、この Bot を使えるユーザーは実質的に Minecraft サーバー運用権限を持ちます
+- そのため、この Bot を使えるユーザーは実質的に ゲームサーバー運用権限を持ちます
 - サーバー招待時の Bot permissions を絞っても、Discord 側で誰がコマンドを打てるかは別途ロールやチャンネル権限で管理する必要があります
 
 ## チャンネルで動かないときの確認

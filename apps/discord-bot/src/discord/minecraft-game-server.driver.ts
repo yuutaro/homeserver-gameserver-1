@@ -36,9 +36,7 @@ export class MinecraftGameServerDriver implements GameServerDriver {
       name: context.containerName,
       Image: this.getImage(),
       Env: env,
-      ExposedPorts: {
-        '25565/tcp': {},
-      },
+      ExposedPorts: { '25565/tcp': {} },
       HostConfig: {
         Binds: [`${server.serverDirOnDockerHost}:/data`],
         PortBindings: {
@@ -120,14 +118,17 @@ export class MinecraftGameServerDriver implements GameServerDriver {
   private async withRcon<T>(
     server: ServerDefinition,
     context: GameServerDriverContext,
-    fn: (rcon: Rcon) => Promise<T>,
+    operation: (rcon: Rcon) => Promise<T>,
   ): Promise<T> {
     const password = server.environment.RCON_PASSWORD;
     if (!password) throw new Error(`RCON_PASSWORD is required in ${server.envFilePathOnBot}`);
-    const host = this.config.get<string>('MC_RCON_HOST') ?? context.containerName;
-    const rcon = await Rcon.connect({ host, port: this.getRconPort(server), password });
+    const rcon = await Rcon.connect({
+      host: context.containerName,
+      port: this.getRconPort(server),
+      password,
+    });
     try {
-      return await fn(rcon);
+      return await operation(rcon);
     } finally {
       await rcon.end();
     }

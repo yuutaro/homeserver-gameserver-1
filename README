@@ -55,7 +55,7 @@ MEMORY=8G
 
 ### 2. Bot設定
 
-`/opt/homeserver-gameserver-1/config/bot.env` にDiscord認証情報、共通コンテナ設定、ゲームドライバー設定を記述します。既存環境では `MC_CONTAINER_NAME=mc-prod` を維持したまま移行できます。
+`/opt/homeserver-gameserver-1/config/bot.env` にDiscord認証情報、共通コンテナ設定、ゲームドライバー設定を記述します。共通実行スロットは `GAMESERVER_CONTAINER_NAME=gameserver-prod` で指定します。
 
 ### 3. Bot起動
 
