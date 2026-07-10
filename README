@@ -10,7 +10,7 @@
 - サーバーデータは本番ホストのプロジェクト配下の `data/` で手動管理する
 - GitHub ActionsではBotだけを自動デプロイする
 
-現在実装されているゲームドライバーはMinecraft（`itzg/minecraft-server`）だけです。Project Zomboidは次の実装段階で追加します。
+現在実装されているゲームドライバーはMinecraft（`itzg/minecraft-server`）とProject Zomboid（`sknnr/zomboid-dedicated-server`）です。
 
 ## 管理モデル
 
@@ -83,3 +83,4 @@ docker compose -f infra/compose.bot.yaml up -d --build
 - `docs/runbooks/troubleshooting.md`
 - `docs/runbooks/systemd.md`
 - `docs/runbooks/pre-reboot-stop.md`
+- `docs/runbooks/project-zomboid.md`

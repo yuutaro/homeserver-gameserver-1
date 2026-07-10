@@ -17,7 +17,7 @@ Git管理しないもの:
 
 ### ゲーム種別
 
-コンテナイメージ、ポート、マウント、保存、停止、ユーザー一覧、RCONをドライバーとして定義します。現在登録されているのは `minecraft` だけです。
+コンテナイメージ、ポート、マウント、保存、停止、ユーザー一覧、RCONをドライバーとして定義します。現在は `minecraft` と `project-zomboid` を登録しています。
 
 ### サーバープロファイル
 
@@ -60,7 +60,8 @@ DiscordService
   └── GameServerManager
         ├── ServerEnvService
         ├── GameServerDriverRegistry
-        │     └── MinecraftGameServerDriver
+        │     ├── MinecraftGameServerDriver
+        │     └── ProjectZomboidGameServerDriver
         └── Docker Engine
 ```
 
@@ -68,6 +69,7 @@ DiscordService
 - `GameServerManager`: 共通コンテナの排他起動、停止、状態、操作委譲
 - `GameServerDriverRegistry`: ゲーム種別からドライバーを解決
 - `MinecraftGameServerDriver`: Minecraft固有のイメージ、ポート、マウント、RCON
+- `ProjectZomboidGameServerDriver`: Project Zomboid固有のUDPポート、2ボリューム、RCON
 - `PreRebootStopService`: Manager経由で現在のゲームを告知・保存・停止
 
 起動・停止系操作はManager内で直列化し、複数のDiscord操作によるコンテナ生成競合を防止します。
@@ -100,6 +102,6 @@ DiscordService
 
 ## 現段階の制限
 
-- ゲーム非依存アーキテクチャへの移行は完了しているが、実装済みドライバーはMinecraftのみ
-- Project Zomboidのドライバー、UDPポート、2ボリューム構成、実データ投入は次段階
+- MinecraftとProject Zomboidのドライバーを実装済み
+- Project Zomboidの外部クライアント接続確認は別タスク
 - 共通実行スロットの標準コンテナ名は `gameserver-prod`

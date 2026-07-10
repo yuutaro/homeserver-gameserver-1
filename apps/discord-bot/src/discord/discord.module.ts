@@ -4,6 +4,7 @@ import { GameServerDriverRegistry } from './game-server-driver-registry.service.
 import { GameServerManager } from './game-server-manager.service.js';
 import { MinecraftGameServerDriver } from './minecraft-game-server.driver.js';
 import { PreRebootStopService } from './pre-reboot-stop.service.js';
+import { ProjectZomboidGameServerDriver } from './project-zomboid-game-server.driver.js';
 import { ServerEnvService } from './server-env.service.js';
 import { ServerRegistryService } from './server-registry.service.js';
 
@@ -13,6 +14,7 @@ import { ServerRegistryService } from './server-registry.service.js';
     ServerEnvService,
     ServerRegistryService,
     MinecraftGameServerDriver,
+    ProjectZomboidGameServerDriver,
     GameServerDriverRegistry,
     GameServerManager,
     PreRebootStopService,
