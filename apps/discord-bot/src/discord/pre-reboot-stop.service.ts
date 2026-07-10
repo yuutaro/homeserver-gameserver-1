@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MinecraftContainerService } from './minecraft-container.service.js';
-import { MinecraftRconService } from './minecraft-rcon.service.js';
+import { GameServerManager } from './game-server-manager.service.js';
 
 type HhMm = { hour: number; minute: number };
 
@@ -12,12 +11,11 @@ export class PreRebootStopService implements OnModuleInit {
   private announceTimer: NodeJS.Timeout | null = null;
   private countdownTimer: NodeJS.Timeout | null = null;
   private running = false;
-  private lastRunDateJst: string | null = null; // YYYY-MM-DD
+  private lastRunDateJst: string | null = null;
 
   constructor(
     private readonly config: ConfigService,
-    private readonly containers: MinecraftContainerService,
-    private readonly rcon: MinecraftRconService,
+    private readonly gameServers: GameServerManager,
   ) {}
 
   async onModuleInit() {
@@ -43,7 +41,6 @@ export class PreRebootStopService implements OnModuleInit {
       `Pre-reboot stop enabled: daily at ${pad2(hhmm.hour)}:${pad2(hhmm.minute)} JST (grace ${graceMinutes} min)`,
     );
 
-    // If the bot restarted after the scheduled time, optionally do a catch-up within a small window.
     const now = new Date();
     const today = formatJstDate(now);
     const scheduledUtcToday = toUtcFromJstToday(hhmm, now);
@@ -76,14 +73,11 @@ export class PreRebootStopService implements OnModuleInit {
       const announceAt = new Date(nextUtc.getTime() - announce.announceMinutesBefore * 60_000);
       const announceDelay = announceAt.getTime() - now.getTime();
       if (announceDelay > 1_000) {
-        this.logger.log(
-          `Pre-reboot announce scheduled at ${announceAt.toISOString()} (UTC) (${announce.announceMinutesBefore} min before)`,
-        );
         this.announceTimer = setTimeout(async () => {
           try {
             await this.announceUpcomingStop(announce.announceMinutesBefore);
-          } catch (e) {
-            this.logger.warn(`Failed to announce upcoming stop: ${String(e)}`);
+          } catch (error) {
+            this.logger.warn(`Failed to announce upcoming stop: ${String(error)}`);
           }
         }, announceDelay);
       }
@@ -91,14 +85,11 @@ export class PreRebootStopService implements OnModuleInit {
       const countdownAt = new Date(nextUtc.getTime() - announce.countdownSeconds * 1000);
       const countdownDelay = countdownAt.getTime() - now.getTime();
       if (announce.countdownSeconds > 0 && countdownDelay > 1_000) {
-        this.logger.log(
-          `Pre-reboot countdown scheduled at ${countdownAt.toISOString()} (UTC) (${announce.countdownSeconds}s)`,
-        );
         this.countdownTimer = setTimeout(async () => {
           try {
             await this.countdownStop(announce.countdownSeconds);
-          } catch (e) {
-            this.logger.warn(`Failed to run countdown: ${String(e)}`);
+          } catch (error) {
+            this.logger.warn(`Failed to run countdown: ${String(error)}`);
           }
         }, countdownDelay);
       }
@@ -114,19 +105,16 @@ export class PreRebootStopService implements OnModuleInit {
   }
 
   private async announceUpcomingStop(minutesBefore: number) {
-    const active = await this.containers.getActiveServerName();
-    if (!active) return;
-    if (minutesBefore <= 0) return;
-    await this.rcon.say(`サーバーは ${minutesBefore} 分後に再起動のため停止します。`, active);
+    const active = await this.gameServers.getActiveServerName();
+    if (!active || minutesBefore <= 0) return;
+    await this.gameServers.announce(`サーバーは ${minutesBefore} 分後に再起動のため停止します。`, active);
   }
 
   private async countdownStop(seconds: number) {
-    const active = await this.containers.getActiveServerName();
-    if (!active) return;
-    if (seconds <= 0) return;
+    const active = await this.gameServers.getActiveServerName();
+    if (!active || seconds <= 0) return;
     for (let i = seconds; i >= 1; i -= 1) {
-      await this.rcon.say(`サーバー停止まで ${i} 秒...`, active);
-      // eslint-disable-next-line no-await-in-loop
+      await this.gameServers.announce(`サーバー停止まで ${i} 秒...`, active);
       await sleep(1000);
     }
   }
@@ -143,20 +131,19 @@ export class PreRebootStopService implements OnModuleInit {
 
     this.running = true;
     try {
-      const active = await this.containers.getActiveServerName();
+      const active = await this.gameServers.getActiveServerName();
       if (!active) {
         this.logger.log('No active server; nothing to stop');
         this.lastRunDateJst = todayJst;
         return;
       }
-
       this.logger.warn(`Stopping server before reboot: ${active}`);
       try {
-        await this.rcon.stopGracefully(active);
-      } catch (e) {
-        this.logger.warn(`RCON graceful stop failed; falling back to docker stop/remove: ${String(e)}`);
+        await this.gameServers.stopGracefully(active);
+      } catch (error) {
+        this.logger.warn(`Graceful stop failed; falling back to docker stop/remove: ${String(error)}`);
       }
-      await this.containers.stopAndRemoveIfExists();
+      await this.gameServers.stopAndRemoveIfExists();
       this.lastRunDateJst = todayJst;
       this.logger.warn(`Stopped server before reboot: ${active}`);
     } finally {
@@ -165,34 +152,35 @@ export class PreRebootStopService implements OnModuleInit {
   }
 }
 
-function parseHhMm(v: string): HhMm | null {
-  const m = v.trim().match(/^(\d{1,2}):(\d{2})$/);
-  if (!m) return null;
-  const hour = Number(m[1]);
-  const minute = Number(m[2]);
+function parseHhMm(value: string): HhMm | null {
+  const match = value.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return null;
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
   if (!Number.isInteger(hour) || !Number.isInteger(minute)) return null;
-  if (hour < 0 || hour > 23) return null;
-  if (minute < 0 || minute > 59) return null;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
   return { hour, minute };
 }
 
-function pad2(n: number): string {
-  return String(n).padStart(2, '0');
+function pad2(value: number): string {
+  return String(value).padStart(2, '0');
 }
 
 function formatJstDate(now: Date): string {
-  // JST is fixed UTC+09:00 (no DST).
   const jst = new Date(now.getTime() + 9 * 60 * 60_000);
   return `${jst.getUTCFullYear()}-${pad2(jst.getUTCMonth() + 1)}-${pad2(jst.getUTCDate())}`;
 }
 
 function toUtcFromJstToday(hhmm: HhMm, now: Date): Date {
-  // Convert "today in JST at HH:MM" to a UTC Date.
   const jstNow = new Date(now.getTime() + 9 * 60 * 60_000);
-  const y = jstNow.getUTCFullYear();
-  const mo = jstNow.getUTCMonth();
-  const d = jstNow.getUTCDate();
-  const jstMillis = Date.UTC(y, mo, d, hhmm.hour, hhmm.minute, 0);
+  const jstMillis = Date.UTC(
+    jstNow.getUTCFullYear(),
+    jstNow.getUTCMonth(),
+    jstNow.getUTCDate(),
+    hhmm.hour,
+    hhmm.minute,
+    0,
+  );
   return new Date(jstMillis - 9 * 60 * 60_000);
 }
 
@@ -202,11 +190,11 @@ function toNextUtcFromJst(hhmm: HhMm, now: Date): Date {
   return new Date(todayUtc.getTime() + 24 * 60 * 60_000);
 }
 
-function clampInt(n: number, min: number, max: number): number {
-  if (!Number.isFinite(n)) return min;
-  return Math.min(max, Math.max(min, Math.floor(n)));
+function clampInt(value: number, min: number, max: number): number {
+  if (!Number.isFinite(value)) return min;
+  return Math.min(max, Math.max(min, Math.floor(value)));
 }
 
 async function sleep(ms: number): Promise<void> {
-  await new Promise<void>((r) => setTimeout(r, ms));
+  await new Promise<void>((resolve) => setTimeout(resolve, ms));
 }

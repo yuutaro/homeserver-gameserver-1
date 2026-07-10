@@ -10,7 +10,7 @@ services:
       # scan and pass bind-mount paths to Docker without translation.
       #
       # NOTE: Compose variable substitution does NOT read values from env_file.
-      # Only use env_file for MC_* and DISCORD_* settings; keep DATA_DIR here.
+      # Use env_file for game-driver and Discord settings; keep DATA_DIR here.
       DATA_DIR: ${DATA_DIR}
       BOT_DATA_DIR: ${DATA_DIR}
       DOCKER_DATA_DIR: ${DATA_DIR}

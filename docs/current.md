@@ -1,150 +1,105 @@
 # 現状の実装（機能と構造）
 
-このドキュメントは「今このリポジトリが提供しているもの」を、運用に必要な前提知識も含めてまとめます。
+## 全体像
 
-## 全体像（何がGit管理で、何が手動管理か）
+Git/GitHubで管理するもの:
 
-- Git/GitHubで管理するもの: **Discord Bot（制御ロジック）** と **デプロイ定義**
-- Git管理しないもの（本番ホストで手動管理）: **Minecraft サーバーデータ一式**
-  - `mods/`, `world/`, `config/`, `server.properties`, `whitelist.json` など
-  - 置き場所: `/opt/homeserver-gameserver-1/data/<server-name>/`
+- Discord Botとゲームサーバー制御ロジック
+- ゲームドライバー
+- Botのデプロイ定義と運用文書
 
-## ディレクトリ（本番ホスト）
+Git管理しないもの:
 
-- デプロイ先（self-hosted runner が更新）:
-  - `/opt/homeserver-gameserver-1/`
-- Bot の secrets / 設定（Git管理外）:
-  - `/opt/homeserver-gameserver-1/config/bot.env`
-- Minecraft サーバーデータ（Git管理外）:
-  - `/opt/homeserver-gameserver-1/data/<server-name>/`
-  - 起動可能判定: `data/<server-name>/server.env` が存在すること
+- `data/<server-id>/` 以下のワールド、MOD、設定、セーブデータ
+- `config/bot.env` の認証情報と本番ホスト設定
 
-## Discord Bot（NestJS + discord.js）
+## 3層の管理モデル
 
-### Bot の責務
+### ゲーム種別
 
-- Discord のスラッシュコマンドを受け取り、結果を返信する（Gateway方式）
-- Docker を操作して Minecraft コンテナ `mc-prod` を作成/削除する（排他起動）
-- RCON で任意コマンドを実行する（`save-all` / `stop` / `list` など）
+コンテナイメージ、ポート、マウント、保存、停止、ユーザー一覧、RCONをドライバーとして定義します。現在登録されているのは `minecraft` だけです。
 
-### コマンド一覧（権限チェック無し）
+### サーバープロファイル
 
-- `/servers` : 起動可能サーバー一覧（キャッシュ表示）
-- `/update-server-list` : `data/` を再スキャンして一覧キャッシュ更新
-- `/start server:<server-name>` : 指定サーバーを排他的に起動（固定コンテナ名 `mc-prod`）
-  - `server` 引数は Discord の **autocomplete** で候補提示（choicesの再登録はしない）
-- `/rcon command:<command>` : 稼働中の `mc-prod` に任意のRCONコマンドを送信
-- `/stop` : 停止（可能なら RCON で save/stop → その後コンテナ削除）
-- `/restart` : 再起動（同じ server-name で作り直し）
-- `/save` : RCON `save-all`
-- `/status` : `mc-prod` の稼働状態と server-name
-- `/users` : RCON `list`（接続中ユーザー）
+`data/<server-id>/server.env` が存在するディレクトリを起動可能なプロファイルとして検出します。
 
-注意:
-- `/rcon` は権限チェック無しで任意コマンドを送れるため、Bot を使える Discord ユーザーは実質的にサーバーオペレータ相当です
-
-### 排他制御（重要）
-
-- Minecraft 本番は常に 1つだけ: **固定コンテナ名 `mc-prod`**
-- `/start` は既存 `mc-prod` を停止・削除してから作り直す（bind mount の差し替えのため）
-
-## Minecraft（itzg/minecraft-server）
-
-### サーバーごとの設定（`data/<server-name>/server.env`）
-
-最低限の例:
-
-```env
-EULA=TRUE
-TYPE=FORGE
-VERSION=1.20.1
-ENABLE_RCON=true
-RCON_PASSWORD=強いパスワード
-RCON_PORT=25575
-MEMORY=16G
-USE_AIKAR_FLAGS=true
+```text
+data/
+├── mc-adventure-1/
+│   ├── server.env
+│   ├── world/
+│   └── mods/
+└── mc-forge-1-20-1/
+    ├── server.env
+    ├── world/
+    └── mods/
 ```
 
-### Java バージョン（重要）
+`server.env` の `GAMESERVER_TYPE` でドライバーを選択します。未指定は `minecraft` です。このキーはBotが除去してから残りの環境変数をゲームコンテナへ渡します。
 
-MOD構成によっては Java バージョン不一致でクラッシュします。
-その場合は Bot 側で `MC_IMAGE` を固定します（例: `itzg/minecraft-server:java17`）。
+### 共通実行スロット
 
-## ポート（ネットワーク）
+全ゲームを通じてコンテナは1つだけです。`/start` は設定検証とイメージ取得後、既存コンテナを停止・削除し、選択されたドライバーの定義で作り直します。
 
-- Minecraft ゲーム通信: **ホスト側で公開が必要**
-  - `MC_HOST_PORT`（例: `30002`）をホストで listen → コンテナ `25565/tcp` へ転送
-  - クライアントは `ホストIP:MC_HOST_PORT` に接続
-- RCON: **外部公開しない**
-  - Bot → Dockerネットワーク内で `mc-prod:25575` へ接続
+新しい設定名は `GAMESERVER_CONTAINER_NAME` です。移行中の本番環境では `MC_CONTAINER_NAME=mc-prod` をフォールバックとして認識します。
 
-## 設定ファイル
+コンテナには次のラベルを付けます。
 
-### `config/bot.env`（Git管理外）
-
-最低限必要:
-
-```env
-DISCORD_TOKEN=...
-DISCORD_CLIENT_ID=...
-DISCORD_GUILD_ID=...
-# 複数ある場合はカンマ区切り
-# DISCORD_GUILD_ID=guild1,guild2,guild3
-
-# データ置き場（本番ホストの絶対パス）
-DATA_DIR=/opt/homeserver-gameserver-1/data
-
-# Minecraft publish ポート（数字のみ推奨）
-MC_HOST_PORT=30002
-
-# (任意) Botの返信に接続先を表示したい場合
-MC_CONNECT_IP=
-MC_CONNECT_HOST=example.com
-
-# production data dir guard
-PROD_DATA_DIR=/opt/homeserver-gameserver-1/data
-
-# Java固定したい場合
-MC_IMAGE=itzg/minecraft-server:java17
-
-# (任意) ホスト定時rebootの前にMinecraftを停止したい場合（JST）
-PRE_REBOOT_STOP_ENABLED=true
-PRE_REBOOT_STOP_TIME_JST=08:55
-PRE_REBOOT_STOP_GRACE_MINUTES=30
-
-# (任意) 停止の告知をマイクラ内に流す
-PRE_REBOOT_ANNOUNCE_ENABLED=true
-PRE_REBOOT_ANNOUNCE_MINUTES_BEFORE=5
-PRE_REBOOT_COUNTDOWN_SECONDS=30
+```text
+com.homeserver.role=gameserver
+com.homeserver.serverName=<server-id>
+com.homeserver.gameType=<game-type>
 ```
 
-### `infra/compose.bot.yaml`（Git管理）
+既存の `mc-prod` に `gameType` ラベルがない場合もMinecraftとして認識します。
 
-- bot だけを動かす compose 定義
-- `DATA_DIR` を同じ絶対パスで bot コンテナへ bind mount し、bot が `/data` をスキャンできるようにする
+## Bot内部構造
 
-## デプロイ（GitHub Actions + self-hosted runner）
+```text
+DiscordService
+  └── GameServerManager
+        ├── ServerEnvService
+        ├── GameServerDriverRegistry
+        │     └── MinecraftGameServerDriver
+        └── Docker Engine
+```
 
-- `main` push で自動デプロイ（Botのみ）
-- runner は `DEPLOY_DIR` repository variable の場所を clone/pull して `scripts/deploy-bot.sh` を実行
-- workflow の本番ホスト固有値は GitHub Actions の **Repository variables** で管理する
-  - `BOT_ENV_FILE`: 本番ホスト上の `config/bot.env` の絶対パス
-  - `DEPLOY_DIR`: 本番ホスト上の checkout 先
-  - `DATA_DIR`: 本番ホスト上の Minecraft サーバーデータ置き場
-- Repository variables は非機密の設定値専用とし、`DISCORD_TOKEN` や RCON パスワードは置かない
-- デプロイ時にスラッシュコマンド登録（guild commands）を毎回実行
-- `DISCORD_GUILD_ID` はカンマ区切りで複数 guild を指定でき、登録スクリプトが各 guild に対して順に登録する
-- `scripts/deploy-bot.sh` は本番 checkout と本番 `BOT_ENV_FILE` / `DATA_DIR` 以外では失敗する
+- `ServerRegistryService`: サーバープロファイルの検出とキャッシュ
+- `GameServerManager`: 共通コンテナの排他起動、停止、状態、操作委譲
+- `GameServerDriverRegistry`: ゲーム種別からドライバーを解決
+- `MinecraftGameServerDriver`: Minecraft固有のイメージ、ポート、マウント、RCON
+- `PreRebootStopService`: Manager経由で現在のゲームを告知・保存・停止
 
-## 公開リポジトリ化に関する運用
+起動・停止系操作はManager内で直列化し、複数のDiscord操作によるコンテナ生成競合を防止します。
 
-- GitHub Actions workflow には `${{ vars.DATA_DIR }}` のような参照名だけを置き、本番ホスト固有の値を直接コミットしない
-- Actions Variables は公開リポジトリのファイルとして閲覧されるものではないが、Secrets ではないため workflow logs に出力され得る
-- 機密値は本番ホストの `config/bot.env` で管理し、GitHub Actions Variables / Git 管理ファイルには置かない
-- `systemd/` は Git 管理外とし、本番ホスト側で必要な unit/timer を作成する
+## Minecraftドライバー
 
-## 再発防止ガード
+- イメージ: `MC_IMAGE`（既定 `itzg/minecraft-server:latest`）
+- ホストポート: `MC_HOST_PORT` → `25565/tcp`
+- データ: `data/<server-id>/` → `/data`
+- RCON: 外部公開せず共通Dockerネットワーク内で接続
+- 保存: `save-all`
+- 停止: `save-all` → `stop`
+- ユーザー一覧: `list`
 
-- 開発用 `.env.example` は `DISCORD_DISABLE_LOGIN=true` を既定値にしている
-- Bot は production `DATA_DIR` 以外では、`ALLOW_NON_PROD_DISCORD_LOGIN=true` を明示しない限り Discord にログインしない
-- `scripts/deploy-bot.sh` は `ALLOW_NON_PROD_DEPLOY=true` を明示しない限り、本番 checkout 以外での実行を拒否する
+## Discordコマンド
+
+- `/servers`: ゲーム種別付きプロファイル一覧
+- `/update-server-list`: 一覧を再スキャン
+- `/start server:<server-id>`: 全ゲームで排他的に起動
+- `/status`: ゲーム種別、サーバーID、コンテナ状態
+- `/save`, `/users`, `/rcon`: ドライバーへ委譲
+- `/restart`, `/stop`: 共通Managerで再起動・停止
+
+## デプロイ
+
+- `main` pushでself-hosted runnerがBotを自動デプロイ
+- サーバーデータはデプロイ対象外
+- Repository variablesの `BOT_ENV_FILE`, `DEPLOY_DIR`, `DATA_DIR` を利用
+- Discord tokenやRCONパスワードはGitHubへ置かず、本番ホストの `config/bot.env` と各 `server.env` で管理
+
+## 現段階の制限
+
+- ゲーム非依存アーキテクチャへの移行は完了しているが、実装済みドライバーはMinecraftのみ
+- Project Zomboidのドライバー、UDPポート、2ボリューム構成、実データ投入は次段階
+- 本番確認完了までは既存コンテナ名 `mc-prod` を維持できる

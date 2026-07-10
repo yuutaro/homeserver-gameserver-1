@@ -1,8 +1,8 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AutocompleteInteraction, Client, Events, GatewayIntentBits, Interaction } from 'discord.js';
-import { MinecraftContainerService, MinecraftStatus } from './minecraft-container.service.js';
-import { MinecraftRconService } from './minecraft-rcon.service.js';
+import { GameServerManager } from './game-server-manager.service.js';
+import type { GameServerConnectionInfo, GameServerStatus } from './game-server.types.js';
 import { ServerRegistryService } from './server-registry.service.js';
 
 const MAX_DISCORD_CODE_BLOCK_LENGTH = 1800;
@@ -16,8 +16,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly config: ConfigService,
     private readonly servers: ServerRegistryService,
-    private readonly containers: MinecraftContainerService,
-    private readonly rcon: MinecraftRconService,
+    private readonly gameServers: GameServerManager,
   ) {}
 
   async onModuleInit() {
@@ -43,20 +42,15 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     }
 
     const token = this.config.get<string>('DISCORD_TOKEN');
-    if (!token) {
-      throw new Error('DISCORD_TOKEN is required');
-    }
+    if (!token) throw new Error('DISCORD_TOKEN is required');
 
-    const client = new Client({
-      intents: [GatewayIntentBits.Guilds],
-    });
-
+    const client = new Client({ intents: [GatewayIntentBits.Guilds] });
     client.once(Events.ClientReady, (ready) => {
       this.logger.log(`Logged in as ${ready.user.tag}`);
       try {
         ready.user.setActivity('/servers /start /rcon /status', { type: 0 });
-      } catch (e) {
-        this.logger.warn(`Failed to set activity: ${String(e)}`);
+      } catch (error) {
+        this.logger.warn(`Failed to set activity: ${String(error)}`);
       }
     });
 
@@ -67,14 +61,10 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
         const err = error as Error;
         this.logger.error('Interaction handling failed', err?.stack ?? String(error));
         if (interaction.isRepliable()) {
-          const message = err?.message ? `: ${err.message}` : '';
-          const content = `エラーが発生しました${message}`;
+          const content = `エラーが発生しました${err?.message ? `: ${err.message}` : ''}`;
           try {
-            if (interaction.deferred || interaction.replied) {
-              await interaction.followUp({ content });
-            } else {
-              await interaction.reply({ content });
-            }
+            if (interaction.deferred || interaction.replied) await interaction.followUp({ content });
+            else await interaction.reply({ content });
           } catch (replyError) {
             this.logger.warn(`Failed to send interaction error response: ${String(replyError)}`);
           }
@@ -98,11 +88,9 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       await this.handleAutocomplete(interaction);
       return;
     }
-
     if (!interaction.isChatInputCommand()) return;
 
     const command = interaction.commandName;
-
     if (command === 'ping') {
       await interaction.reply({ content: 'pong' });
       return;
@@ -111,11 +99,14 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     if (command === 'servers') {
       const snapshot = this.servers.getSnapshot();
       const updatedAt = snapshot.updatedAt ? snapshot.updatedAt.toISOString() : 'never';
-      const list = snapshot.servers.slice(0, 30).join(', ') || '(empty)';
+      const list = snapshot.servers
+        .slice(0, 30)
+        .map((server) => `[${server.gameType}] ${server.id}`)
+        .join('\n') || '(empty)';
       const extra = snapshot.servers.length > 30 ? `\n...and ${snapshot.servers.length - 30} more` : '';
-      const err = snapshot.lastError ? `\nlastError: ${snapshot.lastError}` : '';
+      const error = snapshot.lastError ? `\nlastError: ${snapshot.lastError}` : '';
       await interaction.reply({
-        content: `### 起動可能サーバー一覧\nservers: ${snapshot.servers.length}\nupdatedAt: ${updatedAt}\n${list}${extra}${err}`,
+        content: `### 起動可能サーバー一覧\nservers: ${snapshot.servers.length}\nupdatedAt: ${updatedAt}\n${list}${extra}${error}`,
       });
       return;
     }
@@ -124,82 +115,85 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       await interaction.deferReply();
       const snapshot = await this.servers.refresh();
       const updatedAt = snapshot.updatedAt ? snapshot.updatedAt.toISOString() : 'never';
-      const err = snapshot.lastError ? `\nlastError: ${snapshot.lastError}` : '';
-      await interaction.editReply(`✅ サーバー一覧を更新しました: ${snapshot.servers.length} servers\nupdatedAt: ${updatedAt}${err}`);
+      const error = snapshot.lastError ? `\nlastError: ${snapshot.lastError}` : '';
+      await interaction.editReply(
+        `✅ サーバー一覧を更新しました: ${snapshot.servers.length} servers\nupdatedAt: ${updatedAt}${error}`,
+      );
       return;
     }
 
     if (command === 'status') {
-      const status = await this.containers.status();
-      const connectionInfo = formatConnectionInfo(this.config);
+      const status = await this.gameServers.status();
+      let connectionInfo = '';
+      if (status.status !== 'not_found' && status.serverId) {
+        connectionInfo = formatConnectionInfo(await this.gameServers.getConnectionInfo(status.serverId));
+      }
       await interaction.reply({ content: `${formatStatusForHumans(status)}\n${connectionInfo}`.trim() });
       return;
     }
 
     if (command === 'users') {
       await interaction.deferReply();
-      const users = await this.rcon.listOnlineUsers();
-      await interaction.editReply(`### 接続中ユーザー\n${users}`);
+      await interaction.editReply(`### 接続中ユーザー\n${await this.gameServers.listUsers()}`);
       return;
     }
 
     if (command === 'start') {
       await interaction.deferReply();
-      const serverName = interaction.options.getString('server', true);
-      await interaction.editReply(`🚀 サーバー \`${serverName}\` を起動中...`);
-      await this.containers.startExclusive(serverName);
-      const connectionInfo = formatConnectionInfo(this.config);
-      const message =
-        `🎉 **サーバー \`${serverName}\` の起動コマンドを送信しました！**\n` +
-        `実際に遊べるようになるまで2〜3分かかります。\n` +
-        `${connectionInfo}`;
-      await interaction.editReply(message.trim());
+      const serverId = interaction.options.getString('server', true);
+      await interaction.editReply(`🚀 サーバー \`${serverId}\` を起動中...`);
+      await this.gameServers.startExclusive(serverId);
+      const connectionInfo = formatConnectionInfo(await this.gameServers.getConnectionInfo(serverId));
+      await interaction.editReply(
+        `🎉 **サーバー \`${serverId}\` の起動コマンドを送信しました！**\n` +
+          `実際に遊べるようになるまで2〜3分かかります。\n${connectionInfo}`.trim(),
+      );
       return;
     }
 
     if (command === 'stop') {
       await interaction.deferReply();
-      const active = await this.containers.getActiveServerName();
+      const active = await this.gameServers.getActiveServerName();
       if (!active) {
         await interaction.editReply('✅ 稼働中のサーバーはありません。');
         return;
       }
       try {
         await interaction.editReply(`💾 セーブして停止しています... (\`${active}\`)`);
-        await this.rcon.stopGracefully();
+        await this.gameServers.stopGracefully(active);
       } catch {
-        // ignore and fallback to docker stop/remove
+        // Fall back to Docker stop/remove.
       }
-      await this.containers.stopAndRemoveIfExists();
+      await this.gameServers.stopAndRemoveIfExists();
       await interaction.editReply(`💤 **サーバー \`${active}\` が停止しました。** お疲れ様でした！`);
       return;
     }
 
     if (command === 'restart') {
       await interaction.deferReply();
-      const active = await this.containers.getActiveServerName();
+      const active = await this.gameServers.getActiveServerName();
       if (!active) {
         await interaction.editReply('✅ 稼働中のサーバーがありません。');
         return;
       }
       await interaction.editReply(`🔄 サーバー \`${active}\` を再起動中...`);
-      await this.containers.startExclusive(active);
-      const connectionInfo = formatConnectionInfo(this.config);
+      await this.gameServers.startExclusive(active);
+      const connectionInfo = formatConnectionInfo(await this.gameServers.getConnectionInfo(active));
       await interaction.editReply(`✅ **サーバー \`${active}\` を再起動しました。**\n${connectionInfo}`.trim());
       return;
     }
 
     if (command === 'save') {
       await interaction.deferReply();
-      await this.rcon.saveAll();
-      await interaction.editReply('💾 save-all を実行しました。');
+      await this.gameServers.save();
+      await interaction.editReply('💾 サーバーを保存しました。');
       return;
     }
 
     if (command === 'rcon') {
       await interaction.deferReply();
       const rawCommand = interaction.options.getString('command', true);
-      const response = await this.rcon.sendCommand(rawCommand);
+      const response = await this.gameServers.sendCommand(rawCommand);
       await interaction.editReply(formatRconReply(rawCommand, response));
       return;
     }
@@ -212,62 +206,41 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       await interaction.respond([]);
       return;
     }
-    const focused = String(interaction.options.getFocused() ?? '');
-    const all = this.servers.getServersCached();
-    const filtered = all
-      .filter((s) => s.toLowerCase().includes(focused.toLowerCase()))
+    const focused = String(interaction.options.getFocused() ?? '').toLowerCase();
+    const choices = this.servers
+      .getServersCached()
+      .filter((server) => server.id.toLowerCase().includes(focused) || server.gameType.includes(focused))
       .slice(0, 25)
-      .map((s) => ({ name: s, value: s }));
-    await interaction.respond(filtered);
+      .map((server) => ({ name: `${server.gameType} — ${server.id}`, value: server.id }));
+    await interaction.respond(choices);
   }
 }
 
-function formatStatus(status: MinecraftStatus): string {
-  if (status.status === 'not_found') return 'mc-prod: not_found';
-  const serverName = status.serverName ? ` server=${status.serverName}` : '';
-  return `mc-prod: ${status.status}${serverName}`;
-}
-
-function formatStatusForHumans(status: MinecraftStatus): string {
-  if (status.status === 'not_found') {
-    return '### サーバー状態\n🔴 **コンテナ**: `not_found` (未作成)';
-  }
-
-  const serverName = status.serverName ?? '(unknown)';
+function formatStatusForHumans(status: GameServerStatus): string {
+  if (status.status === 'not_found') return '### サーバー状態\n🔴 **コンテナ**: `not_found` (未作成)';
+  const serverId = status.serverId ?? '(unknown)';
+  const gameType = status.gameType ?? '(unknown)';
   if (status.status === 'running') {
-    return `### サーバー \`${serverName}\` の状態\n🟢 **コンテナ**: \`running\` (起動中)`;
+    return `### サーバー \`${serverId}\` の状態\n🎮 **ゲーム**: \`${gameType}\`\n🟢 **コンテナ**: \`running\` (起動中)`;
   }
   if (status.status === 'exited') {
-    return `### サーバー \`${serverName}\` の状態\n🔴 **コンテナ**: \`exited\` (停止)`;
+    return `### サーバー \`${serverId}\` の状態\n🎮 **ゲーム**: \`${gameType}\`\n🔴 **コンテナ**: \`exited\` (停止)`;
   }
-  return `### サーバー \`${serverName}\` の状態\n❔ **コンテナ**: \`${status.status}\` (不明)`;
+  return `### サーバー \`${serverId}\` の状態\n🎮 **ゲーム**: \`${gameType}\`\n❔ **コンテナ**: \`${status.status}\` (不明)`;
 }
 
-function formatConnectionInfo(config: ConfigService): string {
-  const hostPort = (config.get<string>('MC_HOST_PORT') ?? '').trim();
-  const port = hostPort || '25565';
-  const host = (config.get<string>('MC_CONNECT_HOST') ?? '').trim();
-  const ddns = (config.get<string>('MC_CONNECT_DDNS') ?? '').trim();
-  const ip = (config.get<string>('MC_CONNECT_IP') ?? '').trim();
-  const lines: string[] = [];
-  const preferredHost = host || ddns;
-  if (preferredHost) {
-    lines.push(`接続先アドレス:\n\`\`\`\n${preferredHost}:${port}\n\`\`\``);
-  } else if (ip) {
-    lines.push(`接続先IPアドレス:\n\`\`\`\n${ip}:${port}\n\`\`\``);
-  }
-  if (!preferredHost && !ip) {
-    lines.push(`接続先ポート:\n\`\`\`\n${port}\n\`\`\``);
-  }
-  return lines.join('\n');
+function formatConnectionInfo(info: GameServerConnectionInfo): string {
+  const preferredHost = info.host || info.ddns;
+  if (preferredHost) return `接続先アドレス:\n\`\`\`\n${preferredHost}:${info.hostPort}\n\`\`\``;
+  if (info.ip) return `接続先IPアドレス:\n\`\`\`\n${info.ip}:${info.hostPort}\n\`\`\``;
+  return `接続先ポート:\n\`\`\`\n${info.hostPort}\n\`\`\``;
 }
 
 function formatRconReply(command: string, response: string): string {
   const sanitizedCommand = command.replace(/\r?\n/g, ' ').replace(/`/g, "'").trim();
   const sanitizedResponse = response.replace(/\0/g, '').replace(/```/g, "'''").trim() || '応答なし';
-  const clipped =
-    sanitizedResponse.length > MAX_DISCORD_CODE_BLOCK_LENGTH
-      ? `${sanitizedResponse.slice(0, MAX_DISCORD_CODE_BLOCK_LENGTH - 14)}\n... (truncated)`
-      : sanitizedResponse;
+  const clipped = sanitizedResponse.length > MAX_DISCORD_CODE_BLOCK_LENGTH
+    ? `${sanitizedResponse.slice(0, MAX_DISCORD_CODE_BLOCK_LENGTH - 14)}\n... (truncated)`
+    : sanitizedResponse;
   return `### RCON実行結果\ncommand: \`${sanitizedCommand}\`\nresponse:\n\`\`\`\n${clipped}\n\`\`\``;
 }

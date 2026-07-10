@@ -11,7 +11,7 @@ function usage(message) {
       'Reads Prism Launcher exported modlist CSV with 3 columns:',
       '  <name>,<url>,<version>',
       '',
-      'Downloads mod jars into --out (e.g., ./data/mc-test/mods).',
+      'Downloads mod jars into --out (e.g., ./data/mc-forge-1-20-1/mods).',
     ].join('\n'),
   );
   process.exit(2);

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs",
     "start": "node dist/src/main.js",
     "register:commands": "node dist/scripts/register-commands.js"
   },

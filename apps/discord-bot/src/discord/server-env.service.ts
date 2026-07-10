@@ -2,6 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import {
+  DEFAULT_GAME_TYPE,
+  GAME_TYPE_ENV_KEY,
+  type ServerDefinition,
+} from './game-server.types.js';
 
 export type ServerEnv = {
   serverName: string;
@@ -48,9 +53,27 @@ export class ServerEnvService {
     const values = parseEnvFile(raw);
     return { serverName, serverDirOnBot, envFilePathOnBot, values };
   }
+
+  async readServerDefinition(serverName: string): Promise<ServerDefinition> {
+    const env = await this.readServerEnv(serverName);
+    const gameType = (env.values[GAME_TYPE_ENV_KEY] ?? DEFAULT_GAME_TYPE).trim().toLowerCase();
+    if (!gameType) {
+      throw new Error(`${GAME_TYPE_ENV_KEY} must not be empty in ${env.envFilePathOnBot}`);
+    }
+    const environment = { ...env.values };
+    delete environment[GAME_TYPE_ENV_KEY];
+    return {
+      id: env.serverName,
+      gameType,
+      serverDirOnBot: env.serverDirOnBot,
+      serverDirOnDockerHost: this.serverDirOnDockerHost(env.serverName),
+      envFilePathOnBot: env.envFilePathOnBot,
+      environment,
+    };
+  }
 }
 
-function parseEnvFile(raw: string): Record<string, string> {
+export function parseEnvFile(raw: string): Record<string, string> {
   const out: Record<string, string> = {};
   for (const line of raw.split(/\r?\n/)) {
     const trimmed = line.trim();
@@ -60,7 +83,6 @@ function parseEnvFile(raw: string): Record<string, string> {
     const key = trimmed.slice(0, eq).trim();
     let value = trimmed.slice(eq + 1).trim();
     if (!key) continue;
-
     if (
       (value.startsWith('"') && value.endsWith('"') && value.length >= 2) ||
       (value.startsWith("'") && value.endsWith("'") && value.length >= 2)
@@ -71,4 +93,3 @@ function parseEnvFile(raw: string): Record<string, string> {
   }
   return out;
 }
-
