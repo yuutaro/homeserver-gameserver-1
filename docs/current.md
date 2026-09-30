@@ -36,6 +36,7 @@ data/
 ```
 
 `server.env` の `GAMESERVER_TYPE` でドライバーを選択します。未指定は `minecraft` です。このキーはBotが除去してから残りの環境変数をゲームコンテナへ渡します。
+`GAMESERVER_IMAGE`を設定するとドライバー既定イメージをプロファイル単位で上書きできます。`GAMESERVER_GPU=nvidia`を設定すると、DockerのNVIDIA GPU device request（compute/utility）を追加します。両方のキーはBotが除去し、ゲームコンテナへ環境変数として渡しません。
 
 ### 共通実行スロット
 

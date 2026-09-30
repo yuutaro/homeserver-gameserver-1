@@ -4,6 +4,8 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import {
   DEFAULT_GAME_TYPE,
+  GAME_GPU_ENV_KEY,
+  GAME_IMAGE_ENV_KEY,
   GAME_TYPE_ENV_KEY,
   type ServerDefinition,
 } from './game-server.types.js';
@@ -62,6 +64,15 @@ export class ServerEnvService {
     }
     const environment = { ...env.values };
     delete environment[GAME_TYPE_ENV_KEY];
+    const image = environment[GAME_IMAGE_ENV_KEY]?.trim() || undefined;
+    const rawGpu = environment[GAME_GPU_ENV_KEY]?.trim().toLowerCase();
+    if (rawGpu && rawGpu !== 'nvidia') {
+      throw new Error(
+        `${GAME_GPU_ENV_KEY} must be nvidia when set in ${env.envFilePathOnBot}`,
+      );
+    }
+    delete environment[GAME_IMAGE_ENV_KEY];
+    delete environment[GAME_GPU_ENV_KEY];
     return {
       id: env.serverName,
       gameType,
@@ -69,6 +80,10 @@ export class ServerEnvService {
       serverDirOnDockerHost: this.serverDirOnDockerHost(env.serverName),
       envFilePathOnBot: env.envFilePathOnBot,
       environment,
+      runtime: {
+        ...(image ? { image } : {}),
+        ...(rawGpu === 'nvidia' ? { gpu: 'nvidia' as const } : {}),
+      },
     };
   }
 }

@@ -41,3 +41,52 @@ test('multiple labeled game-server containers are rejected', async () => {
   };
   await assert.rejects(manager.status(), /Multiple managed game-server containers found/);
 });
+
+test("profile runtime image and NVIDIA GPU request are applied when starting", async () => {
+  const server = {
+    id: "gpu-server",
+    gameType: "minecraft",
+    serverDirOnBot: "/data/gpu-server",
+    serverDirOnDockerHost: "/data/gpu-server",
+    envFilePathOnBot: "/data/gpu-server/server.env",
+    environment: { RCON_PASSWORD: "secret" },
+    runtime: { image: "homeserver/minecraft-cuda:test", gpu: "nvidia" },
+  };
+  const driver = {
+    validate: () => {},
+    getImage: () => "default-image",
+    createContainerOptions: () => ({
+      Image: "default-image",
+      HostConfig: { Binds: ["/data/gpu-server:/data"] },
+    }),
+  };
+  const manager = new GameServerManager(
+    new ConfigService({}),
+    { readServerDefinition: async () => server },
+    { get: () => driver },
+  );
+  let createdOptions;
+  manager.docker = {
+    listNetworks: async () => [{ Id: "network" }],
+    getImage: (image) => {
+      assert.equal(image, "homeserver/minecraft-cuda:test");
+      return { inspect: async () => ({}) };
+    },
+    getContainer: () => ({ inspect: async () => { throw new Error("not found"); } }),
+    listContainers: async () => [],
+    createContainer: async (options) => {
+      createdOptions = options;
+      return { start: async () => {} };
+    },
+  };
+
+  await manager.startExclusive("gpu-server");
+
+  assert.equal(createdOptions.Image, "homeserver/minecraft-cuda:test");
+  assert.deepEqual(createdOptions.HostConfig.DeviceRequests, [{
+    Driver: "nvidia",
+    Count: -1,
+    Capabilities: [["gpu", "compute", "utility"]],
+  }]);
+  assert.equal(createdOptions.Env, undefined);
+});

@@ -60,10 +60,22 @@ export class GameServerManager {
       const driver = this.drivers.get(server.gameType);
       driver.validate(server);
       await this.ensureNetworkExists();
-      await this.ensureImageExists(driver.getImage());
+      const image = server.runtime?.image ?? driver.getImage();
+      await this.ensureImageExists(image);
       await this.stopAndRemoveUnlocked();
 
       const options = driver.createContainerOptions(server, this.getDriverContext());
+      options.Image = image;
+      if (server.runtime?.gpu === 'nvidia') {
+        options.HostConfig ??= {};
+        options.HostConfig.DeviceRequests = [
+          {
+            Driver: 'nvidia',
+            Count: -1,
+            Capabilities: [['gpu', 'compute', 'utility']],
+          },
+        ];
+      }
       options.Labels = {
         ...(options.Labels ?? {}),
         [LABEL_ROLE]: 'gameserver',

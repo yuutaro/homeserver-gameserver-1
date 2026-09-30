@@ -40,6 +40,27 @@ test('GAMESERVER_TYPE is normalized and not passed to the game environment', asy
   });
 });
 
+test("runtime image and GPU metadata are normalized and not passed to the game environment", async () => {
+  await withServerEnv(
+    "GAMESERVER_IMAGE=homeserver/minecraft-cuda:test\nGAMESERVER_GPU=NVIDIA\nRCON_PASSWORD=secret\n",
+    async (service) => {
+      const server = await service.readServerDefinition("sample-server");
+      assert.deepEqual(server.runtime, {
+        image: "homeserver/minecraft-cuda:test",
+        gpu: "nvidia",
+      });
+      assert.equal(server.environment.GAMESERVER_IMAGE, undefined);
+      assert.equal(server.environment.GAMESERVER_GPU, undefined);
+    },
+  );
+});
+
+test("unsupported GPU metadata is rejected", async () => {
+  await withServerEnv("GAMESERVER_GPU=amd\nRCON_PASSWORD=secret\n", async (service) => {
+    await assert.rejects(service.readServerDefinition("sample-server"), /GAMESERVER_GPU must be nvidia/);
+  });
+});
+
 test('unsafe server identifiers are rejected', async () => {
   await withServerEnv('RCON_PASSWORD=secret\n', async (service) => {
     await assert.rejects(service.readServerDefinition('../outside'), /Invalid server name/);

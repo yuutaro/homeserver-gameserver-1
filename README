@@ -27,6 +27,7 @@ GAMESERVER_TYPE=minecraft
 ```
 
 未指定の場合は後方互換のためMinecraftとして扱います。`GAMESERVER_TYPE` はBot用メタデータであり、ゲームコンテナには渡されません。
+プロファイル固有のコンテナイメージは `GAMESERVER_IMAGE`、NVIDIA GPU割り当ては `GAMESERVER_GPU=nvidia` で指定できます。これらもBot用メタデータとしてゲームコンテナの環境変数から除去されます。
 
 ## ディレクトリ構成
 
