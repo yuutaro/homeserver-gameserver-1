@@ -27,6 +27,15 @@ jobs:
             mkdir -p "$(dirname "${DEPLOY_DIR}")"
             git clone "${REPO_URL}" "${DEPLOY_DIR}"
           fi
+          if [[ -n "$(git -C "${DEPLOY_DIR}" status --porcelain --untracked-files=all)" ]]; then
+            echo "Refusing deploy: production checkout has uncommitted changes. Preserve and commit them in development first." >&2
+            git -C "${DEPLOY_DIR}" status --short --untracked-files=all >&2
+            exit 1
+          fi
           git -C "${DEPLOY_DIR}" fetch origin main
-          git -C "${DEPLOY_DIR}" reset --hard origin/main
+          if ! git -C "${DEPLOY_DIR}" merge-base --is-ancestor HEAD origin/main; then
+            echo "Refusing deploy: production checkout has local commits not present in origin/main." >&2
+            exit 1
+          fi
+          git -C "${DEPLOY_DIR}" merge --ff-only origin/main
           PROD_ROOT_DIR="${DEPLOY_DIR}" BOT_ENV_FILE="${BOT_ENV_FILE}" DATA_DIR="${DATA_DIR}" bash "${DEPLOY_DIR}/scripts/deploy-bot.sh"

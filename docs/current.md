@@ -97,9 +97,14 @@ DiscordService
 ## デプロイ
 
 - `main` pushでself-hosted runnerがBotを自動デプロイ
+- 開発チェックアウトで編集・テスト・commit・pushし、本番チェックアウトはデプロイ専用とする
+- デプロイ前に未コミット変更（未追跡ファイルを含む）を検査し、存在する場合は変更を保全して停止する
+- 本番に `origin/main` にないローカルコミットがある場合も停止する。更新はfast-forwardのみで、`reset --hard` は使用しない
 - サーバーデータはデプロイ対象外
 - Repository variablesの `BOT_ENV_FILE`, `DEPLOY_DIR`, `DATA_DIR` を利用
 - Discord tokenやRCONパスワードはGitHubへ置かず、本番ホストの `config/bot.env` と各 `server.env` で管理
+
+運用とデプロイ失敗時の復旧手順は [デプロイ運用](runbooks/deployment.md) を参照してください。
 
 ## 現段階の制限
 

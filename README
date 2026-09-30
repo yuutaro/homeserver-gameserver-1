@@ -85,3 +85,6 @@ docker compose -f infra/compose.bot.yaml up -d --build
 - `docs/runbooks/systemd.md`
 - `docs/runbooks/pre-reboot-stop.md`
 - `docs/runbooks/project-zomboid.md`
+- `docs/runbooks/deployment.md`
+- `docs/runbooks/minecraft-create-aeronautics.md`
+- `docs/runbooks/minecraft-terrain-diffusion.md`
