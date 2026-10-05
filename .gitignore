@@ -1,5 +1,7 @@
 node_modules/
 dist/
+__pycache__/
+*.pyc
 .env
 .env.*
 !.env.example
@@ -11,7 +13,10 @@ data/
 logs/
 
 # Local production config (keep secrets out of git)
-config/bot.env
+config/*.env
+
+# Generated client pack artifacts
+release-artifacts/
 multi-server.ini
 multi-server_spawnregions.lua
 

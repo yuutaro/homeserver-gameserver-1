@@ -1,0 +1,30 @@
+{
+  "game": "minecraft",
+  "environment": "mc-create-aeronautics",
+  "name": "Create Aeronautics - Public Client Pack",
+  "allowed_download_hosts": ["cdn.modrinth.com", "edge.forgecdn.net"],
+  "publication_approved": false,
+  "reviewed_mod_manifest_sha256": null,
+  "pending_permissions": [
+    "Create Fluid: confirm terms for the exact distributed version",
+    "Sable Schematic Compat: confirm complete public distribution terms"
+  ],
+  "download_conversions": [
+    {
+      "embedded_path": "overrides/mods/sable-schematics-0.2.44-direct-dbs-hook.jar",
+      "path": "mods/sable-schematics-0.2.44-direct-dbs-hook.jar",
+      "sha1": "a44cafb56959f450c357a8b66a7dc4bf19b75022",
+      "url": "https://edge.forgecdn.net/files/9005/786/sable-schematics-0.2.44-direct-dbs-hook.jar",
+      "project": "https://www.curseforge.com/minecraft/mc-mods/sable-schematic-compat"
+    }
+  ],
+  "blocked_mod_prefixes": ["ftb-", "createultimine-"],
+  "conditions": [
+    "MOD binaries are downloaded from official hosts, not embedded or rehosted.",
+    "Credit Xaero: https://modrinth.com/mod/xaeros-minimap and https://modrinth.com/mod/xaeros-world-map . Do not monetize the pack outside CurseForge/Modrinth without written permission.",
+    "Preserve origin attribution. WTHIT, JER and Create Big Cannons assets include noncommercial terms; review separately before monetization.",
+    "Ore Excavation permits modpack use unless otherwise specified; Minecraft EULA must be observed. https://www.curseforge.com/minecraft/mc-mods/ore-excavation",
+    "Create Connected: https://github.com/hlysine/create_connected/blob/main/LICENSE .",
+    "Full review record: docs/runbooks/client-pack-releases.md . This pack is not a legal clearance."
+  ]
+}

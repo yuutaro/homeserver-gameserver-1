@@ -1,5 +1,9 @@
 # 公開リポジトリ化のための運用メモ
 
+クライアントパックの生成・GitHub Releasesへの手動配布は
+[client-pack-releases.md](runbooks/client-pack-releases.md) を参照。
+`config/pack-release.env` はGit管理外とし、BotのCDとは分離する。
+
 このドキュメントは、このリポジトリを public にする前提で、Git 管理するものと外部設定に逃がすものを整理します。
 
 ## 結論
