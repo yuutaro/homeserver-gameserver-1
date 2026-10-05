@@ -72,7 +72,11 @@ DraftをWeb上で確認してから手動公開する。これだけではPrism�
 
 ## 配布条件の現状
 
-GitHub公開は保留。FTB Library/Ultimine/Create Ultimineは1.3.5で除去済み。
+現行1.3.5の公式URL参照のみの公開について運用者が承認済み。
+JAR本体・第三者の設定・schematicは再配布しない。FTBは1.3.5で除去済み。
+Create Fluid/Sable Schematic Compatのメタデータ上の不明点は、リンクのみの
+公開を止める理由とは扱わない。作者の追加許諾を得た、法的に保証された、という意味ではない。
+具体的なパック配布先制限が判明した場合は再評価する。
 
 - FTB: https://feed-the-beast.com/raw/docs/mod-license （パック配布先がCurseForge限定）
 - Modrinth: https://support.modrinth.com/en/articles/8797527-obtaining-modpack-permissions
@@ -86,9 +90,9 @@ GitHub公開は保留。FTB Library/Ultimine/Create Ultimineは1.3.5で除去済
 - Create Connected: https://github.com/hlysine/create_connected/blob/main/LICENSE
   （AGPLと追加条項、原作者・公式リンク表示）
 - Create Fluid: https://www.curseforge.com/minecraft/mc-mods/create-fluid
-  （JAR/説明/現行ソースのライセンス表記の差異を正確な版で確認する必要あり）
+  （ライセンス表記に差異あり。今回JARを再アップロードしないため公開ブロック対象外）
 - Sable Schematic Compat: https://www.curseforge.com/minecraft/mc-mods/sable-schematic-compat
-  （MITメタデータ・同一公式ファイルは確認済み、完全な公開条件は要確認）
+  （MITメタデータ・同一公式ファイルは確認済み。公式URLのみの公開を運用承認済み）
 
 本番pack-exportsのLICENSE_AUDIT.json/CONDITIONS_REVIEW.mdは調査の詳細記録。
 監査ファイルを自動で公開にコピーはしない。無条件の再配布可能宣言はしない。

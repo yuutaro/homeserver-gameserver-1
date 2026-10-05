@@ -3,12 +3,10 @@
   "environment": "mc-create-aeronautics",
   "name": "Create Aeronautics - Public Client Pack",
   "allowed_download_hosts": ["cdn.modrinth.com", "edge.forgecdn.net"],
-  "publication_approved": false,
-  "reviewed_mod_manifest_sha256": null,
-  "pending_permissions": [
-    "Create Fluid: confirm terms for the exact distributed version",
-    "Sable Schematic Compat: confirm complete public distribution terms"
-  ],
+  "publication_approved": true,
+  "reviewed_mod_manifest_sha256": "48567d14a71720933add736bb65359fcf93541e3109bdfbbb272ccce9f7d08d1",
+  "pending_permissions": [],
+  "review_decision": "Approved by operator for unmodified official URL references on GitHub; no MOD binaries, third-party settings or schematics are redistributed. FTB excluded. Metadata ambiguities for Create Fluid/Sable Schematic Compat are not treated as blockers for this link-only distribution. This is an operational decision, not author consent or legal clearance.",
   "download_conversions": [
     {
       "embedded_path": "overrides/mods/sable-schematics-0.2.44-direct-dbs-hook.jar",

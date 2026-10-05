@@ -181,7 +181,9 @@ def prepare(config, environment, policy):
         require(source.read_bytes() == original, "Source pack changed during generation")
         shutil.copytree(work, dest)
     print(f"Prepared: {dest}")
-    print("Upload eligibility: " + ("reviewed" if policy["publication_approved"] and not policy["pending_permissions"] else "BLOCKED: permission review pending"))
+    approved = (policy["publication_approved"] and not policy["pending_permissions"]
+                and policy.get("reviewed_mod_manifest_sha256") == mod_fingerprint(index))
+    print("Upload eligibility: " + ("reviewed" if approved else "BLOCKED: permission/MOD-list review pending"))
     return dest
 
 
