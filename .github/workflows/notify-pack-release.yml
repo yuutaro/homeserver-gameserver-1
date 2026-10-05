@@ -1,0 +1,30 @@
+name: Notify Discord of client pack release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: discord-release-${{ github.event.release.id }}
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    if: startsWith(github.event.release.tag_name, 'packs/')
+    runs-on: ubuntu-latest
+    environment: discord bot
+    timeout-minutes: 5
+    steps:
+      - name: Checkout notification script
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Send release embed as existing bot
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          RELEASE_NOTIFICATION_CHANNEL: ${{ secrets.RELEASE_NOTIFICATION_CHANNEL }}
+          RELEASE_NOTIFICATION_GUILD: '1555243086060200000'
+        run: python3 scripts/notify-pack-release.py

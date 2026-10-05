@@ -98,6 +98,31 @@ Create Fluid/Sable Schematic Compatのメタデータ上の不明点は、リン
 監査ファイルを自動で公開にコピーはしない。無条件の再配布可能宣言はしない。
 商用パック・有料公開サーバーを検討する場合は非商用条項を別途再確認する。
 
+## Release公開時のDiscord通知
+
+`.github/workflows/notify-pack-release.yml` は `release: published` と `packs/` タグを対象にする。
+Environment **discord bot** のEnvironment Secretsに次を設定する。
+
+- `DISCORD_TOKEN`: 既存Discord botのトークン（コード・新しい.envには保存しない）
+- `RELEASE_NOTIFICATION_CHANNEL`: 通知先チャンネルID
+
+guild IDはworkflowの非機密設定。チャンネルのguildをAPIで照合してから送信する。
+現在の対象はguild `1555243086060200000` / channel `1556537643502932060`。
+送信主は既存bot（Webhookではない）。botアプリの変更・再起動は不要。
+
+権限はDiscordの対象チャンネルの「チャンネルを編集 → 権限」で、bot本人またはbotロールに
+「チャンネルを見る」「メッセージを送信」「埋め込みリンク」を許可する。
+Administratorは不要。個別の拒否設定やカテゴリ継承も確認する。
+
+Releaseタイトル・リンク・本文をEmbedにし、メンションを抑止する。長い本文は省略する。
+ghのユーザー認証で公開したReleaseはActionsが起動する。GITHUB_TOKENで作成したイベントは
+再帰防止のため別workflowを起動しないことがある。既存公開版の本文編集だけでは通知しない。
+Draft作成時も通知しない。将来のリリースタグにこのworkflowが含まれている必要がある。
+
+送信先制限や権限不足はActionsの実行ログで確認する。トークン・API応答本文はログに出さない。
+429は回数制限付き再試行。nonceは最近の重複送信を抑止するだけなので、再実行前にDiscordを確認する。
+実際の通知が未送信なら、初回の公開で動作確認する。テストから実チャンネルへは送信しない。
+
 ## テスト
 
 ```bash
