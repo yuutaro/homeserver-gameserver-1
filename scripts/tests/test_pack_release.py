@@ -126,6 +126,13 @@ class PackReleaseTests(unittest.TestCase):
         self.assertIn('--draft', command)
         self.assertTrue(any(x.endswith('-public-1.2.3.mrpack') for x in command))
         self.assertFalse(any('-personal-' in x for x in command))
+        self.assertFalse(any(x.endswith('SHA256SUMS') or x.endswith('THIRD_PARTY_NOTICES.md') for x in command))
+
+    def test_explicit_server_only_publish(self):
+        m.prepare(self.config, 'test-server', self.policy)
+        with patch.object(m.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, '', '')) as run:
+            m.publish(self.config, 'test-server', '1.2.3', self.policy, False, server_verified_only=True)
+            self.assertIn('--draft', run.call_args.args[0])
 
     def test_remote_existing_tag_or_api_failure_blocks(self):
         m.prepare(self.config, 'test-server', self.policy)

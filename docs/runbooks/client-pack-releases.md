@@ -45,7 +45,7 @@ python3 scripts/pack-release.py prepare mc-create-aeronautics
 パック名・summaryも固定の公開用表記に置換。JAR同梱は確認済みURL変換だけを許可する。
 パック内のダウンロード参照はmods/*.jarのみ、公式ホスト/HTTPS/サイズ/SHA1/SHA512を検査。
 URLへの実アクセスや全MODの新規ダウンロード検証は行わない。Prismでの新規導入確認が必要。
-GitHubへのアップロード対象は公開mrpack・notice・SHA256SUMSの3個だけ。
+GitHubへのアップロード対象は公開mrpackのみ。noticeはパック内に含め、SHA256SUMSはローカルに保存する。
 
 5. 生成した公開候補を新規Prismインスタンスで確認する。
    個人版とはコピー設定の有無が違うので、個人版での確認だけでは代替しない。
@@ -66,7 +66,17 @@ python3 scripts/pack-release.py publish mc-create-aeronautics 1.3.5 --client-ver
 現在のpolicy・生成時policy双方の承認、公開ZIP許可リスト、成果物ハッシュを検査する。
 既存リリース・既存タグを上書きしない。APIエラー時は停止する。
 失敗後はGitHubを確認する（添付途中のDraftができている可能性がある）。
-DraftをWeb上で確認してから手動公開する。これだけではPrismの既存インスタンスの
+Draftの公開はghから実行できる（Web操作不要）。
+
+```bash
+gh release edit packs/minecraft/mc-create-aeronautics/v1.3.5 \
+  --repo yuutaro/homeserver-gameserver-1 --draft=false
+```
+
+ユーザーがサーバー確認のみで公開を希望した場合は、`--client-verified` の代わりに
+`--server-verified-only` を明示する。クライアント検証済みとは扱わない。
+リリースノートは追加・変更項目を簡潔に記載し、権利表記はパック内に維持する。
+これだけではPrismの既存インスタンスの
 自動差分更新にはならない。Gitタグはghがリモートの既定ブランチを指して作るので、
 タグが本番MODのGitコミットを表すわけではない。成果物とmanifestが構成の記録となる。
 

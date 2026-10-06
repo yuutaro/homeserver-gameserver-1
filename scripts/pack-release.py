@@ -161,12 +161,7 @@ def prepare(config, environment, policy):
                 "No schematics or copied configs; client settings use MOD defaults.\n"
                 "GitHub Releases does not provide automatic instance updates.\n")
         (work / "THIRD_PARTY_NOTICES.md").write_text(text)
-        notes = ("# " + environment + " " + version + "\n\n"
-                 + "Loader versions: " + json.dumps(index["dependencies"]) + "\n\n"
-                 + "- Import into a new Prism instance; migrate personal settings carefully.\n"
-                 + "- Verify on a client before publication. No automatic delta update.\n"
-                 + "- Fill in MOD changes, removed MODs, recommended RAM and test results.\n"
-                 + "- Do not put non-public server addresses or credentials in these notes.\n")
+        notes = "## 変更項目\n\n- 追加・変更したMODとバージョンを記入してください。\n"
         (work / "RELEASE_NOTES.md").write_text(notes)
         assets = [public.name, "THIRD_PARTY_NOTICES.md"]
         checksums = {name: digest((work / name).read_bytes()) for name in assets}
@@ -187,10 +182,13 @@ def prepare(config, environment, policy):
     return dest
 
 
-def publish(config, environment, version, policy, client_verified):
+def publish(config, environment, version, policy, client_verified, server_verified_only=False):
     require(bool(VERSION.fullmatch(version)), "Invalid version")
     require(policy["publication_approved"] and not policy["pending_permissions"], "Publication blocked by current permission policy")
-    require(client_verified, "Pass --client-verified after testing the generated PUBLIC pack")
+    require(client_verified or server_verified_only,
+            "Pass --client-verified or explicitly acknowledge --server-verified-only")
+    if server_verified_only:
+        print("Client untested: publishing after server-only verification at operator request.")
     repo = config.get("PACK_REPOSITORY", "")
     require(bool(re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo)), "Set PACK_REPOSITORY")
     require("PACK_OUTPUT_DIR" in config, "Set PACK_OUTPUT_DIR")
@@ -230,7 +228,7 @@ def publish(config, environment, version, policy, client_verified):
     require(tag not in releases.stdout.splitlines(), "Release already exists")
     result = gh("release", "create", tag, "--repo", repo, "--draft", "--title",
                 f"{environment} {version}", "--notes-file", str(folder / "RELEASE_NOTES.md"),
-                *[str(folder / name) for name in (public, "THIRD_PARTY_NOTICES.md", "SHA256SUMS")])
+                str(folder / public))
     require(result.returncode == 0, "Draft upload failed; inspect GitHub before retrying (partial draft may exist)")
     print("Draft created: " + tag + ". Review on GitHub before publishing.")
 
@@ -244,7 +242,10 @@ def main():
     pub = sub.add_parser("publish")
     pub.add_argument("environment")
     pub.add_argument("version")
-    pub.add_argument("--client-verified", action="store_true")
+    verification = pub.add_mutually_exclusive_group()
+    verification.add_argument("--client-verified", action="store_true")
+    verification.add_argument("--server-verified-only", action="store_true",
+                              help="Explicitly acknowledge that the client was not tested")
     args = parser.parse_args()
     try:
         config = load_env(args.env_file)
@@ -252,7 +253,8 @@ def main():
         if args.command == "prepare":
             prepare(config, args.environment, policy)
         else:
-            publish(config, args.environment, args.version, policy, args.client_verified)
+            publish(config, args.environment, args.version, policy, args.client_verified,
+                    args.server_verified_only)
     except (ValueError, OSError, KeyError, zipfile.BadZipFile) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
