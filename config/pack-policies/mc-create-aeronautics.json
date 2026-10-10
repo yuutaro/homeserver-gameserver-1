@@ -4,7 +4,7 @@
   "name": "Create Aeronautics - Public Client Pack",
   "allowed_download_hosts": ["cdn.modrinth.com", "edge.forgecdn.net"],
   "publication_approved": true,
-  "reviewed_mod_manifest_sha256": "7612b737f320513e9fa974516def12881795ab64a15554fe016b5d8d9a1549ae",
+  "reviewed_mod_manifest_sha256": "40b24c2afafe0eae3e6f31755b39b410e85c23accbbb9550c0120cf1ad8aa4b5",
   "pending_permissions": [],
   "review_decision": "Approved by operator for unmodified official URL references on GitHub; no MOD binaries, third-party settings or schematics are redistributed. FTB excluded. Metadata ambiguities for Create Fluid/Sable Schematic Compat are not treated as blockers for this link-only distribution. This is an operational decision, not author consent or legal clearance.",
   "download_conversions": [
@@ -23,6 +23,8 @@
     "Preserve origin attribution. WTHIT, JER and Create Big Cannons assets include noncommercial terms; review separately before monetization.",
     "Ore Excavation permits modpack use unless otherwise specified; Minecraft EULA must be observed. https://www.curseforge.com/minecraft/mc-mods/ore-excavation",
     "Create Connected: https://github.com/hlysine/create_connected/blob/main/LICENSE .",
+    "Create Aeronautics: Transmission & Linkage 0.2.8 by enxv233: CC-BY-NC-4.0; official unmodified download reference, no binary rehosting. https://modrinth.com/mod/create-aeronautics-transmission-linkage . Review separately before monetization.",
+    "Create Propulsion: Simulated 1.1.5 by Sergey Feduk, Tronco_78, Bunting_chj, SSnowly and KyivSec: MIT License; official unmodified download reference. https://modrinth.com/mod/create-propulsion-simulated .",
     "Full review record: docs/runbooks/client-pack-releases.md . This pack is not a legal clearance."
   ]
 }
