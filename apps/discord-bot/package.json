@@ -14,13 +14,13 @@
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.0",
     "discord.js": "^14.17.0",
-    "dockerode": "^4.0.6",
-    "reflect-metadata": "^0.2.2",
+    "dockerode": "^5.0.1",
     "rcon-client": "^4.2.5",
+    "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@types/dockerode": "^3.3.27",
+    "@types/dockerode": "^4.0.2",
     "@types/node": "^22.13.0",
     "typescript": "^5.7.3"
   }
