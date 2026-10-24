@@ -4,7 +4,7 @@
   "name": "Create Aeronautics - Public Client Pack",
   "allowed_download_hosts": ["cdn.modrinth.com", "edge.forgecdn.net"],
   "publication_approved": true,
-  "reviewed_mod_manifest_sha256": "a421fc0725460cbab3693a8a505e17b879f6b0c4dd83dad68958f46120c0ad76",
+  "reviewed_mod_manifest_sha256": "415f609e8f493c87b0e82627ec3b3519d5c9eb757d76938fb3e13c1d17ba292e",
   "pending_permissions": [],
   "review_decision": "Approved by operator for unmodified official URL references on GitHub; no MOD binaries, third-party settings or schematics are redistributed. FTB excluded. Metadata ambiguities for Create Fluid/Sable Schematic Compat are not treated as blockers for this link-only distribution. This is an operational decision, not author consent or legal clearance.",
   "download_conversions": [
@@ -27,6 +27,8 @@
     "Create Propulsion: Simulated 1.1.5 by Sergey Feduk, Tronco_78, Bunting_chj, SSnowly and KyivSec: MIT License; official unmodified download reference. https://modrinth.com/mod/create-propulsion-simulated .",
     "SSRD 1.8.7 by Ranold: All Rights Reserved. https://modrinth.com/mod/ssrd . Author explicitly permits modpacks hosted on CurseForge/Modrinth; no GitHub binary redistribution permission is claimed. This pack references the unmodified official download URL only, under the operator's URL-only publication decision.",
     "Sodium 0.8.13 by CaffeineMC contributors: Polyform-Shield-1.0.0. https://modrinth.com/mod/sodium . Official download reference only; client-side MOD.",
+    "Create Aeronautics: Stabilized 1.0.2 by ARMURIII: All Rights Reserved. https://modrinth.com/mod/create-stabilized . Unmodified official download reference only; no binary redistribution permission is claimed.",
+    "Sable Cleanup Tools 0.3.0 by SwigBox: MIT License. https://modrinth.com/mod/sable-cleanup . Unmodified official download reference only.",
     "Full review record: docs/runbooks/client-pack-releases.md . This pack is not a legal clearance."
   ]
 }
