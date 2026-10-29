@@ -4,6 +4,13 @@ Issue #6。サーバーCDとは分離し、本番で更新した `data/<環境ID
 生成・アップロードはサーバーや元パックを書き換えない。GitHub Actionsは追加しない。
 現在はMinecraft mrpackのみ対応。Project Zomboidには別の生成処理が必要。
 
+## Pi Skill
+
+プロジェクト管理の `.agents/skills/release-client-pack/SKILL.md` で公開手順を定型化する。
+`/skill:release-client-pack <環境ID>` で呼び出す（追加後は `/reload`）。
+MOD変更済みのmrpackを入力とし、公開版作成・Release公開・Discord通知確認・Issue記録を行う。
+リリース本文は変更項目のみ、Issueも短い箇条書きにする。サーバー操作・MOD変更は対象外。
+
 ## 初期設定
 
 Python 3.11以上（標準ライブラリのみ）とghを使う。
@@ -49,7 +56,8 @@ GitHubへのアップロード対象は公開mrpackのみ。noticeはパック�
 
 5. 生成した公開候補を新規Prismインスタンスで確認する。
    個人版とはコピー設定の有無が違うので、個人版での確認だけでは代替しない。
-6. RELEASE_NOTES.mdにMOD差分・旧MOD削除手順・必要Java/推奨メモリ・確認結果を記入。
+6. RELEASE_NOTES.mdには追加・更新・削除したMODとバージョンだけを短い箇条書きで記入。
+   検証状況・既知の問題はIssueに簡潔な箇条書きで記録し、権利表記はパック内に維持する。
    本番の非公開接続先や機密情報は書かない。リリース本文は手動レビューする。
 7. 全許諾確認が済んだらpolicyのpending_permissionsを解消し、publication_approvedをtrueにする。
    根拠URL/条件をconditionsへ記録し、Gitレビューする。生成manifestのmod_manifest_sha256を
