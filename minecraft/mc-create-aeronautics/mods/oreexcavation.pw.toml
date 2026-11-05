@@ -1,0 +1,8 @@
+name = "OreExcavation"
+filename = "OreExcavation-NeoForge-1.21.1-1.16.43.jar"
+side = "client"
+
+[download]
+url = "https://edge.forgecdn.net/files/6327/284/OreExcavation-NeoForge-1.21.1-1.16.43.jar"
+hash-format = "sha512"
+hash = "522b1bbf8ad4d62e27c431d7fe134310ef6a1d76f7a5e825c6a085b04af813af81c3e3661fc547171bb9e63a4601e6eaa94d5ca1da2be0077754a5dc23c54673"

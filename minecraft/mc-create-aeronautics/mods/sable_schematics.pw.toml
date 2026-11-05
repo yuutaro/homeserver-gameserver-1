@@ -1,0 +1,8 @@
+name = "Sable Schematics"
+filename = "sable-schematics-0.2.44-direct-dbs-hook.jar"
+side = "client"
+
+[download]
+url = "https://edge.forgecdn.net/files/9005/786/sable-schematics-0.2.44-direct-dbs-hook.jar"
+hash-format = "sha512"
+hash = "7dd708ae76e3bc46119db0e0037a20856e4aa1487c4baf429924ff04eaa55905d7a9cc7444ccfcbc02e0a025c04498270d54b3f7804e60ab230ed91845feae2e"

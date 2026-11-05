@@ -1,0 +1,8 @@
+name = "Dave's Building Continued"
+filename = "dbContinued-1.0.2.jar"
+side = "client"
+
+[download]
+url = "https://edge.forgecdn.net/files/8941/664/dbContinued-1.0.2.jar"
+hash-format = "sha512"
+hash = "05b2503a78d214d7a04ec9646c9e29b6458f1567d960be2be0340dc07b5751062a2cbca0dcf61bd3b8622f0366f15df8d31073753da5e4204322133e737d158e"

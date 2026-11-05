@@ -1,0 +1,8 @@
+name = "Stabilized"
+filename = "stabilized-1.0.2.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/vRmgUJhP/versions/TioAC4ED/stabilized-1.0.2.jar"
+hash-format = "sha512"
+hash = "d9538b36a5afd95580bbac92cfb7a030e694f945134dd8d0cceeb80562b1c64f54ce6de6d2c89e122949aaab86fde74faa1d6cdf5bf0cb0035c0ba392896461f"

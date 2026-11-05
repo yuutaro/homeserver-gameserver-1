@@ -1,0 +1,8 @@
+name = "Sable Photomancy"
+filename = "sable-photomancy-1.0.1.jar"
+side = "client"
+
+[download]
+url = "https://edge.forgecdn.net/files/8606/655/sable-photomancy-1.0.1.jar"
+hash-format = "sha512"
+hash = "3a02e10c10d96a8fde75a5e625207f5452991d48ec4b4762dff3ea870952fdb922b93ad3d0b84c66bdb7875bcf96f3c6f61076c595a13652ddf86fd9a6dc9730"

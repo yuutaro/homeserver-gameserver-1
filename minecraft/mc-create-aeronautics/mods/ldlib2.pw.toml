@@ -1,0 +1,8 @@
+name = "LowDragLib2"
+filename = "ldlib2-neoforge-1.21.1-2.2.41-all.jar"
+side = "client"
+
+[download]
+url = "https://edge.forgecdn.net/files/8940/836/ldlib2-neoforge-1.21.1-2.2.41-all.jar"
+hash-format = "sha512"
+hash = "4a1e76aa7e90f43f866a6cacc3a1ce0a4bf070517090234c9a56a9d431dc023a06fcbaeb15b83c9957e0387271670e581a58b799cfe5beac0a51f42442795925"

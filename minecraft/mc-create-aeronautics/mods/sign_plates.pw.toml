@@ -1,0 +1,8 @@
+name = "Sign Plates"
+filename = "SignPlates-NeoForge-1.21.1-1.1.2.jar"
+side = "client"
+
+[download]
+url = "https://edge.forgecdn.net/files/8175/647/SignPlates-NeoForge-1.21.1-1.1.2.jar"
+hash-format = "sha512"
+hash = "df7e5c284f926674d725e4ba1fc1c395412fc59959e3378a414aad98752a4f3141ac57f00f77bcabf50a9236ba20dd0a118fd157f1c1cbc360d455084cae7e2a"

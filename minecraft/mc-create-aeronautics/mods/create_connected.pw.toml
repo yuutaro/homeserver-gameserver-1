@@ -1,0 +1,8 @@
+name = "Create: Connected"
+filename = "create_connected-1.3.3-mc1.21.1.jar"
+side = "client"
+
+[download]
+url = "https://edge.forgecdn.net/files/8777/573/create_connected-1.3.3-mc1.21.1.jar"
+hash-format = "sha512"
+hash = "bd5554afb37bc32d633ddcc9dac791a040021fc65004dc0dce1cb9247034525a28eb2d4cdccb1189be1c7562f29f2c5571ba5b757236b4253fae250f3067e275"

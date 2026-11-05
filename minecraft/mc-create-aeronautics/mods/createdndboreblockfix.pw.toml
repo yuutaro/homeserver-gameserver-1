@@ -1,0 +1,8 @@
+name = "Create: Dreams & Desires Bore Block fix"
+filename = "createdndboreblockfix-1.1.0.jar"
+side = "client"
+
+[download]
+url = "https://edge.forgecdn.net/files/8867/729/createdndboreblockfix-1.1.0.jar"
+hash-format = "sha512"
+hash = "e05d52c62ea8ee3417803fbc9175acbb9cf1e76998893831e7e37a981d9b97d276094c2df57450dc7bac0ee8cafc609ffeeb5852dbe447727c0e87afd5d6307b"

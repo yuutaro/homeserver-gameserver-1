@@ -1,0 +1,8 @@
+name = "Drive-By-Sable"
+filename = "drivebysable-r1.7.0.jar"
+side = "client"
+
+[download]
+url = "https://edge.forgecdn.net/files/8996/636/drivebysable-r1.7.0.jar"
+hash-format = "sha512"
+hash = "cbaa285e370e0584097f829af612dff71931545062260e1f2ee28ebf709fce00c840f7ba0994493a830ce44b38c377a5244458db062aad6f2ef0569ec94a4978"
