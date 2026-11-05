@@ -1,19 +1,80 @@
 # 環境別クライアントパックの手動リリース
 
-Issue #6。サーバーCDとは分離し、本番で更新した `data/<環境ID>/client.mrpack` を正とする。
-生成・アップロードはサーバーや元パックを書き換えない。GitHub Actionsは追加しない。
-現在はMinecraft mrpackのみ対応。Project Zomboidには別の生成処理が必要。
+Issue #6、#17。サーバーCDとは分離し、本番で更新した `data/<環境ID>/packwiz/` をクライアント配布情報の正とする。
+GitHub Pagesとバージョン付きmrpackを同じデータから生成する。Minecraftのみ対応。
+サーバーのMODや個人用 `client.mrpack` は自動更新しない。
 
 ## Pi Skill
 
 プロジェクト管理の `.agents/skills/release-client-pack/SKILL.md` で公開手順を定型化する。
 `/skill:release-client-pack <環境ID>` で呼び出す（追加後は `/reload`）。
-MOD変更済みのmrpackを入力とし、公開版作成・Release公開・Discord通知確認・Issue記録を行う。
+MOD変更済みのpackwizデータを入力とし、Pages・Release公開・Discord通知確認・Issue記録を行う。
 リリース本文は変更項目のみ、Issueも短い箇条書きにする。サーバー操作・MOD変更は対象外。
+
+## packwizからの公開候補生成
+
+URL参照のみの候補を生成し、公開前にMOD差分とpolicy指紋を確認する。
+
+```bash
+python3 scripts/packwiz-export.py mc-create-aeronautics \
+  --pack-dir "$HOME/apps/homeserver-gameserver-1/data/mc-create-aeronautics/packwiz" \
+  --output /tmp/packwiz-public-candidate.mrpack
+```
+
+packwiz CLIとネットワーク接続が必要。元データを一時コピーして書き出し、
+元のMOD一覧・URL・SHA-512と候補を照合し、JARや個人ファイルを同梱しない。
+既存出力は上書きしない。候補の指紋が未承認の場合は公開しない。
+公開mrpackは全MODをserver unsupportedとするクライアント専用。
+packwiz側もclient専用とし、サーバーMODの管理には使用しない。
+
+## packwizの公開
+
+本番でMOD・packwizを更新して検証し、`pack.toml`のversionを増やす。
+各MODは本番で検証したバージョンに固定し、クライアント専用MODも含めてsideをclientにする。
+`cd "$PACK_DIR" && packwiz refresh` でindexとハッシュを更新する。
+配布URLのファイルと本番JARのハッシュを照合し、前回Releaseとの差分をレビューする。
+候補指紋をpolicyに記録してコミットする。`packwiz-export.py` は候補生成用であり、
+公開の承認チェックを代替しない。prepareからPages公開完了まで元データを変更しない。
+
+```bash
+PACK_DIR="$HOME/apps/homeserver-gameserver-1/data/mc-create-aeronautics/packwiz"
+python3 scripts/packwiz-publish.py prepare mc-create-aeronautics --pack-dir "$PACK_DIR"
+# 生成された公開mrpackとRELEASE_NOTES.mdを確認・編集
+python3 scripts/pack-release.py publish mc-create-aeronautics VERSION --client-verified
+# draft確認後、Pagesを公開。対象環境以外を変更せず通常pushする。
+python3 scripts/packwiz-publish.py pages mc-create-aeronautics --pack-dir "$PACK_DIR" --version VERSION
+# gh run list等でpushしたコミットに対応するPagesデプロイを確認
+# Pagesのpack.tomlとindex.tomlを取得し、公開した元データとのハッシュを照合
+# 問題なければ gh release edit ... --draft=false でdraftを公開
+# release.publishedのActions実行を照合し、Discord通知を確認する
+```
+
+`VERSION`は実際のバージョンに置き換える。Pages公開はクライアントに即時影響する。
+Pages成功後にRelease公開が失敗した場合は部分公開をIssueに記録し、むやみに再実行しない。
+`gh-pages`は専用の公開ブランチで、mainとのマージは不要。個人用ファイルは含めない。
+現行の公開URL: https://yuutaro.github.io/homeserver-gameserver-1/minecraft/mc-create-aeronautics/pack.toml
+packwiz installerによる既存Prismインスタンス移行時は古い未管理MODの残存に注意。
+既存ファイルと配布対象の同名ファイルは上書きされ得るため、事前にバックアップする。
+新規PrismインスタンスはMinecraft 1.21.1、NeoForge 21.1.252、Java 21で作成し、
+`packwiz-installer-bootstrap.jar`をminecraftフォルダに置き、起動前コマンドを設定する。
+
+```bash
+"$INST_JAVA" -jar packwiz-installer-bootstrap.jar https://yuutaro.github.io/homeserver-gameserver-1/minecraft/mc-create-aeronautics/pack.toml
+```
+
+Pages公開済み1.3.11は新規Prism導入・本番接続を確認済み。既存Prism環境の移行と、
+実際のMOD変更からPages・Release・Discord通知までの一連の運用は次回の実作業で検証する。
+個人用schematicはPagesや公開mrpackに含めず、従来の個人用パックも自動更新されない。
+
+## 旧client.mrpack方式
+
+以下は旧方式の参照用。現在のpackwiz用policy指紋とは異なり得るため、
+このままでは公開できない場合がある。
 
 ## 初期設定
 
-Python 3.11以上（標準ライブラリのみ）とghを使う。
+Python 3.11以上（標準ライブラリのみ）、packwiz CLI、gh、Gitを使う。
+gh認証のほか、`gh-pages`へのGit push権限とGitのコミット用author設定が必要。
 
 ```bash
 cp config/pack-release.env.example config/pack-release.env
@@ -30,7 +91,7 @@ gh auth status
 認証は原則ghの保存済み認証を利用し、トークンを重複保存しない。
 認証トークン・設定値をログに出さない。出力パスはローカル端末に表示される。
 
-## 更新から公開まで
+## 旧方式：更新から公開まで
 
 1. 従来どおり本番MODとclient.mrpackを更新（個人用schematicは維持）。
 2. サーバー・クライアントで動作確認し、パックのversionIdを増やす。
