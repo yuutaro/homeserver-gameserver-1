@@ -11,6 +11,24 @@ Issue #6。サーバーCDとは分離し、本番で更新した `data/<環境ID
 MOD変更済みのmrpackを入力とし、公開版作成・Release公開・Discord通知確認・Issue記録を行う。
 リリース本文は変更項目のみ、Issueも短い箇条書きにする。サーバー操作・MOD変更は対象外。
 
+## packwizからの公開候補生成（試験運用）
+
+現行の正式リリース手順は引き続き `client.mrpack` を入力とする。
+packwiz移行の比較用に、URL参照のみの候補を別途生成できる。
+
+```bash
+python3 scripts/packwiz-export.py mc-create-aeronautics \
+  --pack-dir "$HOME/apps/homeserver-gameserver-1/data/mc-create-aeronautics/packwiz" \
+  --output /tmp/packwiz-public-candidate.mrpack
+```
+
+packwiz CLIとネットワーク接続が必要。元データを一時コピーして書き出し、
+元のMOD一覧・URL・SHA-512と候補を照合し、JARや個人ファイルを同梱しない。
+既存出力は上書きしない。候補の指紋が未承認の場合は公開しない。
+現行の `prepare` / `publish` はこの候補を受け付けない。
+packwiz形式ではmrpackのサーバー側optionalを忠実に表せないため、
+クライアント配信用として扱う。配信・リリース運用への統合は未実装。
+
 ## 初期設定
 
 Python 3.11以上（標準ライブラリのみ）とghを使う。
