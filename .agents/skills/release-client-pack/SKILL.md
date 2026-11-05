@@ -1,7 +1,7 @@
 ---
 name: release-client-pack
 description: Publish an updated production packwiz client pack to GitHub Pages and GitHub Releases, verify Discord notification, and record the release in a GitHub issue. Use for client-pack release requests, not MOD installation or server operations.
-compatibility: Python 3.11+, authenticated gh CLI, and this repository's release configuration.
+compatibility: Python 3.11+, packwiz CLI, authenticated gh and Git push access, and this repository's release configuration.
 ---
 
 # Release a client pack
@@ -23,7 +23,8 @@ keep release notes change-only and put verification details in the issue.
 
 1. Confirm the environment, source version, MOD changes, and verification evidence.
    Resolve paths and repository from `config/pack-release.env` without printing
-   secrets; never read `bot.env`. Check `gh auth status`.
+   secrets; never read `bot.env`. Check `gh auth status` and Git push access.
+   Source must already be refreshed with `packwiz refresh` and client-only.
 2. Compare the source with that environment's previous published public pack
    (not GitHub's global latest release). Compare MOD identities, versions,
    URLs and hashes; filename-only changes are not necessarily new MODs. Use the
@@ -58,10 +59,10 @@ keep release notes change-only and put verification details in the issue.
    If neither applies, stop and ask; never fabricate a verification result.
 9. Publish the reviewed source to Pages with `packwiz-publish.py pages`,
    providing `--pack-dir <pack-dir> --version <prepared-version>`.
-   Check the matching Pages deployment and the deployed pack.toml/index against
-   the local source. Pages changes can affect clients immediately; coordinate
-   with server availability. If Pages or subsequent release publication fails,
-   report the partial state and do not blindly retry.
+   Check the matching Pages deployment commit and the deployed pack.toml/index
+   hashes against the prepared source. Pages changes can affect clients immediately;
+   coordinate with server availability. If Pages or subsequent release publication
+   fails, report the partial state and do not blindly retry.
 10. Inspect the draft's body and assets. Attach only the public mrpack, then publish:
    ```bash
    gh release edit packs/minecraft/<environment>/v<version> --repo <repository> --draft=false
@@ -74,5 +75,5 @@ keep release notes change-only and put verification details in the issue.
     message before retrying; do not recreate the release to trigger notifications.
 12. Add a concise result comment to the issue using the template, including any
     verification limits or known problems. Close a dedicated release issue when
-    complete; do not close broader work issues prematurely. Leave notification
-    failures open. Report the version, release URL, and any failure briefly.
+    complete with reason `completed`; do not close broader work issues prematurely.
+    Leave notification failures open. Report the version, release URL, and failures briefly.

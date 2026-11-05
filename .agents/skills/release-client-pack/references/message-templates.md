@@ -12,7 +12,7 @@ placeholders. Keep detailed logs and local paths out of public messages.
 ```markdown
 - 対象：<environment> <version>
 - 変更：<short MOD changes>
-- 作業：公開mrpack作成・Release公開・Discord通知確認
+- 作業：公開mrpack作成・Pages／Release公開・Discord通知確認
 ```
 
 ## Release notes
@@ -32,6 +32,7 @@ automatically; do not compose or send a separate notification.
 - 公開：<environment> <version>
 - 変更：<short MOD changes>
 - 確認：サーバー <result>／クライアント <result>
+- Pages：<result>
 - Release：<URL>
 - Discord：<success, pending, or failure; run URL if useful>
 - 注意：<known issue or unverified behavior, if any>
