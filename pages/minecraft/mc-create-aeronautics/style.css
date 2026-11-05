@@ -19,6 +19,9 @@ a:focus-visible { outline: 3px solid #bb7917; outline-offset: 4px; }
 nav { display: flex; flex-wrap: wrap; gap: 10px 24px; }
 section { background: #fff; border: 1px solid #dce2df; border-radius: 8px; padding: 28px; margin: 24px 0; scroll-margin-top: 20px; }
 li { padding-left: 4px; margin: 12px 0; }
+figure { margin: 18px 0 24px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid #dce2df; border-radius: 4px; }
+figcaption { margin-top: 8px; color: #536168; font-size: .85rem; line-height: 1.7; }
 ol, ul { padding-left: 24px; }
 code { font-family: ui-monospace, "Cascadia Code", monospace; font-size: .9em; overflow-wrap: anywhere; }
 pre { overflow-x: auto; padding: 18px; border: 1px solid #dce2df; border-radius: 4px; background: #f3f5f4; line-height: 1.6; }

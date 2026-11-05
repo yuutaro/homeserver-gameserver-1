@@ -72,6 +72,8 @@ class PackwizPublishTest(unittest.TestCase):
             site.mkdir(parents=True)
             (site / "index.html").write_text("installation instructions")
             (site / "style.css").write_text("body { color: black; }")
+            (site / "images").mkdir()
+            (site / "images/example.png").write_bytes(b"test image")
             raw = b"test bootstrap"
             with patch.object(mod, "checked", side_effect=checked), patch.object(mod, "validated_snapshot", side_effect=self.snapshot), \
                  patch.object(mod, "SITE_ROOT", site_root), patch.object(mod.prism, "download_bootstrap", return_value=raw), \
@@ -81,7 +83,7 @@ class PackwizPublishTest(unittest.TestCase):
                 mod.publish_pages(self.root, "test-server", self.policy, "owner/repo", "1.2.3")
             show = subprocess.run(["git", "--git-dir", str(bare), "show", "gh-pages:minecraft/other/pack.toml"], check=True, capture_output=True, text=True)
             self.assertEqual(show.stdout, "keep")
-            for asset in ["index.html", "style.css", "prism-instance.zip"]:
+            for asset in ["index.html", "style.css", "prism-instance.zip", "images/example.png"]:
                 subprocess.run(["git", "--git-dir", str(bare), "show", f"gh-pages:minecraft/test-server/{asset}"],
                                check=True, capture_output=True)
             index = subprocess.run(["git", "--git-dir", str(bare), "show", "gh-pages:minecraft/test-server/index.toml"],
@@ -95,6 +97,26 @@ class PackwizPublishTest(unittest.TestCase):
         (site / "private.txt").write_text("not public")
         with patch.object(mod, "SITE_ROOT", self.root), self.assertRaisesRegex(ValueError, "Unexpected"):
             mod.add_installation_page(self.root, self.root, "minecraft", "test-server", "owner/repo")
+
+    def test_page_rejects_unsafe_images(self):
+        site = self.root / "site/minecraft/test-server"
+        site.mkdir(parents=True)
+        for name in ["index.html", "style.css"]:
+            (site / name).write_text("public")
+        (site / "images").mkdir()
+        secret = self.root / "secret"
+        secret.write_text("private")
+        for name in ["private.txt", "linked.png"]:
+            image = site / "images" / name
+            if name.endswith(".png"):
+                image.symlink_to(secret)
+            else:
+                image.write_text("private")
+            target = self.root / name
+            target.mkdir()
+            with patch.object(mod, "SITE_ROOT", self.root / "site"), self.assertRaisesRegex(ValueError, "Unsafe installation image"):
+                mod.add_installation_page(self.root, target, "minecraft", "test-server", "owner/repo")
+            image.unlink()
 
 
 if __name__ == "__main__":
