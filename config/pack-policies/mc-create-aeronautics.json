@@ -4,10 +4,11 @@
   "name": "Create Aeronautics - Public Client Pack",
   "allowed_download_hosts": [
     "cdn.modrinth.com",
-    "edge.forgecdn.net"
+    "edge.forgecdn.net",
+    "github.com"
   ],
   "publication_approved": true,
-  "reviewed_mod_manifest_sha256": "9664703ca188f8009e7d3ca95b395307bdb5bb744ad877d987ca02f7e72cb36e",
+  "reviewed_mod_manifest_sha256": "e4f92342093b11f182289f009bce5e01db0bbfaf62daa0aa741d14a4b7ef4887",
   "pending_permissions": [],
   "review_decision": "Approved by operator for unmodified official URL references on GitHub; no MOD binaries, third-party settings or schematics are redistributed. FTB excluded. Metadata ambiguities for Create Fluid/Sable Schematic Compat are not treated as blockers for this link-only distribution. This is an operational decision, not author consent or legal clearance.",
   "download_conversions": [
@@ -38,6 +39,8 @@
     "FramedBlocks 10.6.3 by XFactHD: LGPL-3.0-only. https://modrinth.com/mod/framedblocks . Unmodified official Modrinth download reference only.",
     "Sophisticated Backpacks 3.26.19.2243 by P3pp3rF1y: All Rights Reserved; no binary redistribution or commercial-use permission is claimed. Unmodified official Modrinth download reference only, under the existing operator URL-only publication decision. https://modrinth.com/mod/sophisticated-backpacks ; https://github.com/P3pp3rF1y/SophisticatedBackpacks/blob/1.21.x/LICENSE.md .",
     "Sophisticated Core 1.5.23.2446 by P3pp3rF1y: All Rights Reserved; no binary redistribution or commercial-use permission is claimed. Unmodified official Modrinth download reference only, under the existing operator URL-only publication decision. https://modrinth.com/mod/sophisticated-core ; https://github.com/P3pp3rF1y/SophisticatedCore/blob/1.21.x/LICENSE.md .",
+    "Randomize Filters Terrain Slabs Fix 1.0.1 by yuutaro: MIT License. Official versioned GitHub Release download reference only. https://github.com/yuutaro/randomizefilters-terrain-slabs-fix .",
+    "Countered's Terrain Slabs 3.1.2 by Countered!: MIT License. Official unmodified Modrinth download reference only. https://modrinth.com/mod/countereds-terrain-slabs ; https://github.com/Coun7ered/terrain_slabs_multiloader .",
     "Full review record: docs/runbooks/client-pack-releases.md . This pack is not a legal clearance."
   ]
 }
