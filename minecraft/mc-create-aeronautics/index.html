@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create Aeronautics — クライアント導入・更新</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Minecraft / mc-create-aeronautics</p>
+      <h1>Create Aeronautics<br>クライアント導入・更新</h1>
+      <p>Prism Launcherとpackwizで環境を揃えます。一度設定すれば、ゲームの起動前にMODが自動で更新されます。</p>
+      <p class="requirements">Minecraft 1.21.1 · NeoForge 21.1.252 · Java 21</p>
+      <nav aria-label="導入方法">
+        <a href="#new">初めて参加する方</a>
+        <a href="#existing">既存の環境を移行する方</a>
+      </nav>
+    </header>
+
+    <section id="new">
+      <h2>初めて参加する方</h2>
+      <p>設定済みZIPをPrism Launcherに読み込む方法です。JARの配置やコマンド入力は不要です。</p>
+      <ol>
+        <li><a href="https://prismlauncher.org/download/">Prism Launcher</a>をインストールし、Minecraftのアカウントを設定します。</li>
+        <li><a class="download" href="prism-instance.zip" download>設定済みPrismインスタンスZIPをダウンロード</a></li>
+        <li>Prism Launcherで「インスタンスを追加 → ZIPからインポート」を開き、ダウンロードしたZIPを選びます。ZIPは展開せず、そのまま指定してください。</li>
+        <li>Java 21を選択して起動します。最初にMODのダウンロードが行われるため、少し時間がかかります。</li>
+      </ol>
+      <p>ZIPには起動設定とpackwizの小さなインストーラーを含みます。MOD本体・ワールド・接続先・アカウント情報は含みません。サーバーへの接続先は管理者に確認してください。</p>
+    </section>
+
+    <section id="existing">
+      <h2>既存の環境を移行する方</h2>
+      <aside><strong>最初にバックアップしてください。</strong>ゲームを終了し、Prism Launcherでインスタンスをコピーして、そのコピーで作業することをおすすめします。packwizは管理対象のMODを追加・更新・削除します。</aside>
+      <ol>
+        <li>対象の環境がMinecraft <strong>1.21.1</strong> / NeoForge <strong>21.1.252</strong> / Java <strong>21</strong>であることを確認します。</li>
+        <li><a href="https://github.com/packwiz/packwiz-installer-bootstrap/releases/latest/download/packwiz-installer-bootstrap.jar">packwiz-installer-bootstrap.jarを公式サイトからダウンロード</a>します。<code>packwiz-installer.jar</code>ではなく、<code>bootstrap</code>を含む名前のJARを使ってください。</li>
+        <li>Prism Launcherで対象インスタンスの「Minecraftフォルダー」を開き、JARを置きます。<strong><code>mods</code>や<code>options.txt</code>と同じ階層</strong>です。<code>mods</code>の中や、<code>instance.cfg</code>がある階層ではありません。</li>
+        <li>古いMODが残らないよう、<code>mods</code>フォルダをMinecraftフォルダの<strong>外へ退避</strong>します。必要なMODは起動時に再取得されます。個人用MODは対応状況を確認してから戻してください。</li>
+        <li>「編集 → 設定 → カスタムコマンド」で個別設定を有効にし、下のコマンドを<strong>起動前のコマンド</strong>に貼り付けます。既にコマンドが設定されている場合は、上書き前に管理者へ相談してください。</li>
+      </ol>
+      <pre><code>"$INST_JAVA" -jar packwiz-installer-bootstrap.jar https://yuutaro.github.io/homeserver-gameserver-1/minecraft/mc-create-aeronautics/pack.toml</code></pre>
+      <p>設定後に起動し、MODの取得が終わるのを待ってください。<code>options.txt</code>や個人用の<code>schematics</code>はそのまま使用できます。</p>
+      <p class="note">packwiz管理前の古いMODは、自動では削除されない場合があります。退避せずに移行すると、旧版と新版の重複で起動に失敗することがあります。迷った場合は、新規インスタンスを作る方法が安全です。</p>
+    </section>
+
+    <section>
+      <h2>設定後の更新について</h2>
+      <ul>
+        <li>Prism Launcherから起動するたびに配布情報を確認し、必要なMODを更新します。起動にはインターネット接続が必要です。</li>
+        <li>更新に失敗した場合は、そのままゲームを起動せず、Prismのログを添えて管理者に確認してください。</li>
+        <li>通常のMOD更新ではZIPを再インポートする必要はありません。Minecraftやローダー自体の変更は、別途案内します。</li>
+      </ul>
+      <p><a href="https://github.com/yuutaro/homeserver-gameserver-1/releases">更新履歴・mrpack</a> · <a href="THIRD_PARTY_NOTICES.md">MODの権利表記</a> · <a href="https://packwiz.infra.link/tutorials/installing/packwiz-installer/">packwiz公式導入ガイド</a></p>
+    </section>
+    <footer>配布ZIPに含まれるpackwiz-installer-bootstrapはMIT Licenseです。ライセンス・取得元はZIP内に同梱しています。各MODの権利はそれぞれの作者に帰属します。</footer>
+  </main>
+</body>
+</html>
