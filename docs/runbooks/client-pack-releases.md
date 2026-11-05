@@ -66,6 +66,26 @@ Pages公開済み1.3.11は新規Prism導入・本番接続を確認済み。既�
 実際のMOD変更からPages・Release・Discord通知までの一連の運用は次回の実作業で検証する。
 個人用schematicはPagesや公開mrpackに含めず、従来の個人用パックも自動更新されない。
 
+## 導入案内ページ・PrismインスタンスZIP
+
+`pages/minecraft/mc-create-aeronautics/` の `index.html` と `style.css` をGit管理する。
+`packwiz-publish.py pages` はpackwizとは別にこの2ファイルを配置し、同じディレクトリへ
+`prism-instance.zip` を生成する。案内は次回公開でも再配置される。
+packwizのindexやmrpackにはHTML/CSS・Prism ZIPを含めない。
+
+ZIPは `instance.cfg`、`mmc-pack.json`、`minecraft/packwiz-installer-bootstrap.jar`、
+READMEとbootstrapのMITライセンスのみ。MOD・個人設定・アカウント・接続先は含めない。
+Minecraft/NeoForgeのバージョンは公開対象のpack.tomlから取得し、起動前コマンドは
+当該環境の固定Pages URLを参照する。Javaのローカルパスは固定しない（Java 21を各利用者が選択）。
+bootstrap v0.0.3は公式Releaseから取得し、`scripts/prism-instance.py` の固定SHA-256と照合する。
+bootstrap更新時は公式取得元・ハッシュ・ライセンスを再確認する。
+
+案内のみ更新する場合も、現在公開済みのバージョンを指定して `pages` を実行する。
+新しいReleaseやDiscord通知は不要。pack/indexのハッシュが変わっていないことに加え、
+公開HTML/CSS/ZIPを取得してローカル生成物と照合する。
+Minecraft/ローダーの更新時は案内HTMLの動作環境表記も更新する。
+Prism GUIでのインポート・初回起動確認は、ZIPの構造検査・installer単体検証とは区別して記録する。
+
 ## 旧client.mrpack方式
 
 以下は旧方式の参照用。現在のpackwiz用policy指紋とは異なり得るため、
