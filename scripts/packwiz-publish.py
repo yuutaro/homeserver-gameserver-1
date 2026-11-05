@@ -30,10 +30,20 @@ def add_installation_page(pack, target, game, environment, repository):
         return
     r.require(not site.is_symlink(), "Unsafe installation page directory")
     assets = {p.name for p in site.iterdir()}
-    r.require(assets == {"index.html", "style.css"}, "Unexpected installation page files")
-    for name in sorted(assets):
+    required = {"index.html", "style.css"}
+    r.require(required <= assets and assets <= required | {"images"}, "Unexpected installation page files")
+    for name in sorted(required):
         r.require((site / name).is_file() and not (site / name).is_symlink(), "Unsafe installation page asset")
         shutil.copy2(site / name, target / name)
+    if "images" in assets:
+        images = site / "images"
+        r.require(images.is_dir() and not images.is_symlink(), "Unsafe installation image directory")
+        (target / "images").mkdir()
+        for image in sorted(images.iterdir()):
+            r.require(image.is_file() and not image.is_symlink() and
+                      re.fullmatch(r"[a-z0-9][a-z0-9-]*\.png", image.name) is not None,
+                      "Unsafe installation image")
+            shutil.copy2(image, target / "images" / image.name)
     owner, repo_name = repository.split("/")
     url = f"https://{owner}.github.io/{repo_name}/{game}/{environment}/pack.toml"
     prism.build_instance(pack, target / "prism-instance.zip", url, prism.download_bootstrap())

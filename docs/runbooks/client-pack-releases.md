@@ -68,8 +68,9 @@ Pages公開済み1.3.11は新規Prism導入・本番接続を確認済み。既�
 
 ## 導入案内ページ・PrismインスタンスZIP
 
-`pages/minecraft/mc-create-aeronautics/` の `index.html` と `style.css` をGit管理する。
-`packwiz-publish.py pages` はpackwizとは別にこの2ファイルを配置し、同じディレクトリへ
+`pages/minecraft/mc-create-aeronautics/` の `index.html`、`style.css`、`images/*.png` をGit管理する。
+画像は公開前にアカウント名・ホスト名などを不透明に塗りつぶし、加工済みのものだけを登録する。
+`packwiz-publish.py pages` はpackwizとは別にこれらを配置し、同じディレクトリへ
 `prism-instance.zip` を生成する。案内は次回公開でも再配置される。
 packwizのindexやmrpackにはHTML/CSS・Prism ZIPを含めない。
 
@@ -82,7 +83,7 @@ bootstrap更新時は公式取得元・ハッシュ・ライセンスを再確�
 
 案内のみ更新する場合も、現在公開済みのバージョンを指定して `pages` を実行する。
 新しいReleaseやDiscord通知は不要。pack/indexのハッシュが変わっていないことに加え、
-公開HTML/CSS/ZIPを取得してローカル生成物と照合する。
+公開HTML/CSS/画像/ZIPを取得してローカル生成物と照合する。
 Minecraft/ローダーの更新時は案内HTMLの動作環境表記も更新する。
 Prism GUIでのインポート・初回起動確認は、ZIPの構造検査・installer単体検証とは区別して記録する。
 
