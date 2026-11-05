@@ -6,10 +6,14 @@ GitHub Pagesとバージョン付きmrpackを同じデータから生成する�
 
 ## Pi Skill
 
-プロジェクト管理の `.agents/skills/release-client-pack/SKILL.md` で公開手順を定型化する。
-`/skill:release-client-pack <環境ID>` で呼び出す（追加後は `/reload`）。
-MOD変更済みのpackwizデータを入力とし、Pages・Release公開・Discord通知確認・Issue記録を行う。
-リリース本文は変更項目のみ、Issueも短い箇条書きにする。サーバー操作・MOD変更は対象外。
+プロジェクト管理の `.agents/skills/publish-server-update/SKILL.md` で更新配信を定型化する。
+`/skill:publish-server-update <環境ID>` で呼び出す（変更後は `/reload`）。
+本番MODの変更と動作確認が完了した状態を入力とし、packwizの登録・更新・削除、
+バージョン／index更新、Pages・mrpack公開、Discord通知確認、Issue記録まで行う。
+通常のMOD変更は対象環境の次の未使用パッチバージョンを使い、既存draftや未公開変更があれば先に確認する。
+リリース本文は変更項目のみ、Issueも短い箇条書きにする。
+MOD本体の導入・削除、サーバー操作、ワールドバックアップ、個人用client.mrpack更新は対象外。
+このSkillは従来の `release-client-pack` を置き換える。
 
 ## packwizからの公開候補生成
 
@@ -29,7 +33,9 @@ packwiz側もclient専用とし、サーバーMODの管理には使用しない�
 
 ## packwizの公開
 
-本番でMOD・packwizを更新して検証し、`pack.toml`のversionを増やす。
+本番でMODを更新して動作確認した後、Skillで変更対象のpackwiz情報を更新し、`pack.toml`のversionを増やす。
+本番modsを丸ごと配布一覧に置き換えず、既存のクライアント専用MOD・任意導入設定を維持する。
+サーバー専用MODは配布しない。追加・更新した公式ダウンロードを検証済みJARと照合する。
 各MODは本番で検証したバージョンに固定し、クライアント専用MODも含めてsideをclientにする。
 `cd "$PACK_DIR" && packwiz refresh` でindexとハッシュを更新する。
 配布URLのファイルと本番JARのハッシュを照合し、前回Releaseとの差分をレビューする。
@@ -62,8 +68,10 @@ packwiz installerによる既存Prismインスタンス移行時は古い未管�
 "$INST_JAVA" -jar packwiz-installer-bootstrap.jar https://yuutaro.github.io/homeserver-gameserver-1/minecraft/mc-create-aeronautics/pack.toml
 ```
 
-Pages公開済み1.3.11は新規Prism導入・本番接続を確認済み。既存Prism環境の移行と、
-実際のMOD変更からPages・Release・Discord通知までの一連の運用は次回の実作業で検証する。
+Pages公開済み1.3.11は新規Prism導入・本番接続を確認済み。
+1.3.12・1.3.13では実MOD変更からPages・Release・Discord通知までの公開運用を確認済み。
+新Skillの一括実行は次回の実更新時に検証する。公開パックの導入・ゲーム内確認は、
+元のMOD構成の動作確認やinstaller単体の取得検証とは区別して記録する。
 個人用schematicはPagesや公開mrpackに含めず、従来の個人用パックも自動更新されない。
 
 ## 導入案内ページ・PrismインスタンスZIP

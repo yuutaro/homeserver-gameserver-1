@@ -5,14 +5,14 @@ placeholders. Keep detailed logs and local paths out of public messages.
 
 ## Issue title
 
-`<environment>: クライアントパック <version> 公開`
+`<environment>: 更新配信 <version>`
 
 ## Initial issue body
 
 ```markdown
 - 対象：<environment> <version>
 - 変更：<short MOD changes>
-- 作業：公開mrpack作成・Pages／Release公開・Discord通知確認
+- 作業：packwiz登録・バージョン／index更新・Pages／mrpack公開・Discord通知確認
 ```
 
 ## Release notes
