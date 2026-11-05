@@ -61,7 +61,6 @@ This manifest is not a grant to redistribute or monetize third-party work.
 - mods/createpropulsion-1.1.5.jar: https://cdn.modrinth.com/data/ApkoHNO9/versions/H13U56dc/createpropulsion-1.1.5.jar
 - mods/createrandomizefilters-1.0.7.jar: https://cdn.modrinth.com/data/Y3R5jiC8/versions/l9hwlpNV/createrandomizefilters-1.0.7.jar
 - mods/curios-neoforge-9.5.1+1.21.1.jar: https://cdn.modrinth.com/data/vvuO3ImH/versions/yohfFbgD/curios-neoforge-9.5.1%2B1.21.1.jar
-- mods/dbContinued-1.0.2.jar: https://edge.forgecdn.net/files/8941/664/dbContinued-1.0.2.jar
 - mods/drivebysable-r1.7.0.jar: https://edge.forgecdn.net/files/8996/636/drivebysable-r1.7.0.jar
 - mods/dyeable_ropes-1.2.3.jar: https://edge.forgecdn.net/files/8248/176/dyeable_ropes-1.2.3.jar
 - mods/effortlessbuilding-4.2+1.21.1.jar: https://cdn.modrinth.com/data/DYtfQEYj/versions/YxnBXtLv/effortlessbuilding-4.2%2B1.21.1.jar

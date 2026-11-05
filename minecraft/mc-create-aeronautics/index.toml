@@ -136,11 +136,6 @@ hash = "ba3dff562ee658eae336faaf39481731ebedafc4c52397a606a83dba0bb3e8a3"
 metafile = true
 
 [[files]]
-file = "mods/davebuildingmod.pw.toml"
-hash = "9b3da0d32532c884811a471f3b9e3856962cf28755d75ddf4e833bd2e4e78fdf"
-metafile = true
-
-[[files]]
 file = "mods/distanthorizons.pw.toml"
 hash = "39e8f93e8b3c3fe4f6f33ff6d27229de4ac473b67a7073919d9e3a52d481cb72"
 metafile = true
