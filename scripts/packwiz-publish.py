@@ -18,6 +18,25 @@ spec = importlib.util.spec_from_file_location("packwiz_export", HERE / "packwiz-
 exporter = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(exporter)
 r = exporter.release
+spec = importlib.util.spec_from_file_location("prism_instance", HERE / "prism-instance.py")
+prism = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(prism)
+SITE_ROOT = r.ROOT / "pages"
+
+
+def add_installation_page(pack, target, game, environment, repository):
+    site = SITE_ROOT / game / environment
+    if not site.exists():
+        return
+    r.require(not site.is_symlink(), "Unsafe installation page directory")
+    assets = {p.name for p in site.iterdir()}
+    r.require(assets == {"index.html", "style.css"}, "Unexpected installation page files")
+    for name in sorted(assets):
+        r.require((site / name).is_file() and not (site / name).is_symlink(), "Unsafe installation page asset")
+        shutil.copy2(site / name, target / name)
+    owner, repo_name = repository.split("/")
+    url = f"https://{owner}.github.io/{repo_name}/{game}/{environment}/pack.toml"
+    prism.build_instance(pack, target / "prism-instance.zip", url, prism.download_bootstrap())
 
 
 def checked(*args, cwd=None):
@@ -94,6 +113,7 @@ def publish_pages(source, environment, policy, repository, expected_version):
         shutil.copytree(pack, target)
         with zipfile.ZipFile(candidate) as archive:
             (target / "THIRD_PARTY_NOTICES.md").write_bytes(archive.read("overrides/pack-notices/THIRD_PARTY_NOTICES.md"))
+        add_installation_page(pack, target, policy["game"], environment, repository)
         (repo / ".nojekyll").touch()
         checked("git", "add", "--", ".nojekyll", f"{policy['game']}/{environment}", cwd=repo)
         changes = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=repo, check=False)

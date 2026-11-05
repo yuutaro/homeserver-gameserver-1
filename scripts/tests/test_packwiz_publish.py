@@ -24,7 +24,7 @@ class PackwizPublishTest(unittest.TestCase):
     def snapshot(self, source, work, policy):
         pack = work / "pack"
         pack.mkdir()
-        (pack / "pack.toml").write_text('version="1.2.3"')
+        (pack / "pack.toml").write_text('version="1.2.3"\n[versions]\nminecraft="1.21.1"\nneoforge="21.1.252"\n')
         (pack / "index.toml").write_text('files=[]')
         candidate = work / "candidate.mrpack"
         with zipfile.ZipFile(candidate, "w") as z:
@@ -67,11 +67,34 @@ class PackwizPublishTest(unittest.TestCase):
                 if args[:4] == ("git", "remote", "add", "origin"):
                     args = (*args[:4], str(bare))
                 return original(*args, cwd=cwd)
-            with patch.object(mod, "checked", side_effect=checked), patch.object(mod, "validated_snapshot", side_effect=self.snapshot):
+            site_root = self.root / "pages"
+            site = site_root / "minecraft/test-server"
+            site.mkdir(parents=True)
+            (site / "index.html").write_text("installation instructions")
+            (site / "style.css").write_text("body { color: black; }")
+            raw = b"test bootstrap"
+            with patch.object(mod, "checked", side_effect=checked), patch.object(mod, "validated_snapshot", side_effect=self.snapshot), \
+                 patch.object(mod, "SITE_ROOT", site_root), patch.object(mod.prism, "download_bootstrap", return_value=raw), \
+                 patch.object(mod.prism, "BOOTSTRAP_SHA256", mod.hashlib.sha256(raw).hexdigest()):
+                # Repeated publication regenerates the same ZIP and preserves the guide.
+                mod.publish_pages(self.root, "test-server", self.policy, "owner/repo", "1.2.3")
                 mod.publish_pages(self.root, "test-server", self.policy, "owner/repo", "1.2.3")
             show = subprocess.run(["git", "--git-dir", str(bare), "show", "gh-pages:minecraft/other/pack.toml"], check=True, capture_output=True, text=True)
             self.assertEqual(show.stdout, "keep")
+            for asset in ["index.html", "style.css", "prism-instance.zip"]:
+                subprocess.run(["git", "--git-dir", str(bare), "show", f"gh-pages:minecraft/test-server/{asset}"],
+                               check=True, capture_output=True)
+            index = subprocess.run(["git", "--git-dir", str(bare), "show", "gh-pages:minecraft/test-server/index.toml"],
+                                   check=True, capture_output=True, text=True).stdout
+            self.assertEqual(index, "files=[]")
             subprocess.run(["git", "--git-dir", str(bare), "show", "gh-pages:minecraft/test-server/pack.toml"], check=True, capture_output=True)
+
+    def test_page_rejects_unexpected_assets(self):
+        site = self.root / "minecraft/test-server"
+        site.mkdir(parents=True)
+        (site / "private.txt").write_text("not public")
+        with patch.object(mod, "SITE_ROOT", self.root), self.assertRaisesRegex(ValueError, "Unexpected"):
+            mod.add_installation_page(self.root, self.root, "minecraft", "test-server", "owner/repo")
 
 
 if __name__ == "__main__":
