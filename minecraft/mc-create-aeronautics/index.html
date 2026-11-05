@@ -37,9 +37,28 @@
       <ol>
         <li>対象の環境がMinecraft <strong>1.21.1</strong> / NeoForge <strong>21.1.252</strong> / Java <strong>21</strong>であることを確認します。</li>
         <li><a href="https://github.com/packwiz/packwiz-installer-bootstrap/releases/latest/download/packwiz-installer-bootstrap.jar">packwiz-installer-bootstrap.jarを公式サイトからダウンロード</a>します。<code>packwiz-installer.jar</code>ではなく、<code>bootstrap</code>を含む名前のJARを使ってください。</li>
-        <li>Prism Launcherで対象インスタンスの「Minecraftフォルダー」を開き、JARを置きます。<strong><code>mods</code>や<code>options.txt</code>と同じ階層</strong>です。<code>mods</code>の中や、<code>instance.cfg</code>がある階層ではありません。</li>
+        <li>
+          Prism Launcherで対象インスタンスの「Minecraftフォルダー」を開き、JARを置きます。<strong><code>mods</code>や<code>options.txt</code>と同じ階層</strong>です。<code>mods</code>の中や、<code>instance.cfg</code>がある階層ではありません。
+          <figure>
+            <a href="images/bootstrap-location.png"><img src="images/bootstrap-location.png" alt="Minecraftフォルダのパスと、その直下に配置したpackwiz-installer-bootstrap.jarを示す画面" width="883" height="763" loading="lazy"></a>
+            <figcaption>JARの配置先。画像はLinuxの例ですが、WindowsでもPrismの「Minecraftフォルダー」から開けます。画像をクリックすると原寸で表示します。</figcaption>
+          </figure>
+        </li>
         <li>古いMODが残らないよう、<code>mods</code>フォルダをMinecraftフォルダの<strong>外へ退避</strong>します。必要なMODは起動時に再取得されます。個人用MODは対応状況を確認してから戻してください。</li>
-        <li>「編集 → 設定 → カスタムコマンド」で個別設定を有効にし、下のコマンドを<strong>起動前のコマンド</strong>に貼り付けます。既にコマンドが設定されている場合は、上書き前に管理者へ相談してください。</li>
+        <li>
+          対象インスタンスを選択し、右側の<strong>「編集」</strong>を開きます。
+          <figure>
+            <a href="images/prism-edit.png"><img src="images/prism-edit.png" alt="Prism Launcherで対象インスタンスを選択し、右側の編集ボタンを赤枠で示した画面" width="881" height="765" loading="lazy"></a>
+            <figcaption>赤枠の「編集」をクリックします。</figcaption>
+          </figure>
+        </li>
+        <li>
+          <strong>「設定 → カスタムコマンド」</strong>を開き、<strong>「グローバル設定を上書き」</strong>にチェックを入れます。下のコマンドを<strong>「起動前コマンド」</strong>に貼り付けてください。既にコマンドが設定されている場合は、上書き前に管理者へ相談してください。
+          <figure>
+            <a href="images/prism-custom-command.png"><img src="images/prism-custom-command.png" alt="設定のカスタムコマンドタブでグローバル設定を上書きにチェックし、起動前コマンドを入力する場所を示した画面" width="1130" height="773" loading="lazy"></a>
+            <figcaption>入力するのは「起動前コマンド」です。下のテキストからコピーしてください。</figcaption>
+          </figure>
+        </li>
       </ol>
       <pre><code>"$INST_JAVA" -jar packwiz-installer-bootstrap.jar https://yuutaro.github.io/homeserver-gameserver-1/minecraft/mc-create-aeronautics/pack.toml</code></pre>
       <p>設定後に起動し、MODの取得が終わるのを待ってください。<code>options.txt</code>や個人用の<code>schematics</code>はそのまま使用できます。</p>
