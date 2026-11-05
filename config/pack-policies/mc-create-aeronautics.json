@@ -8,7 +8,7 @@
     "github.com"
   ],
   "publication_approved": true,
-  "reviewed_mod_manifest_sha256": "1e0612409d0a0a12d519620972b5dd3271a3a9d883007e163f636f3212fdca66",
+  "reviewed_mod_manifest_sha256": "e4f92342093b11f182289f009bce5e01db0bbfaf62daa0aa741d14a4b7ef4887",
   "pending_permissions": [],
   "review_decision": "Approved by operator for unmodified official URL references on GitHub; no MOD binaries, third-party settings or schematics are redistributed. FTB excluded. Metadata ambiguities for Create Fluid/Sable Schematic Compat are not treated as blockers for this link-only distribution. This is an operational decision, not author consent or legal clearance.",
   "download_conversions": [
