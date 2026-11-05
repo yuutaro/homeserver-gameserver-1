@@ -73,6 +73,8 @@ def validate_export(exported, pack, expected, policy):
         release.require(entry["downloads"] == [ref["url"]] and
                         entry["hashes"]["sha512"] == ref["sha512"] and entry["env"] == env,
                         "Exported MOD metadata differs: " + filename)
+        # The public mrpack is a client pack, independent of packwiz's side metadata.
+        entry["env"]["server"] = "unsupported"
     return index
 
 

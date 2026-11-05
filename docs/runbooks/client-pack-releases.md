@@ -1,20 +1,19 @@
 # 環境別クライアントパックの手動リリース
 
-Issue #6。サーバーCDとは分離し、本番で更新した `data/<環境ID>/client.mrpack` を正とする。
-生成・アップロードはサーバーや元パックを書き換えない。GitHub Actionsは追加しない。
-現在はMinecraft mrpackのみ対応。Project Zomboidには別の生成処理が必要。
+Issue #6、#17。サーバーCDとは分離し、本番で更新した `data/<環境ID>/packwiz/` をクライアント配布情報の正とする。
+GitHub Pagesとバージョン付きmrpackを同じデータから生成する。Minecraftのみ対応。
+サーバーのMODや個人用 `client.mrpack` は自動更新しない。
 
 ## Pi Skill
 
 プロジェクト管理の `.agents/skills/release-client-pack/SKILL.md` で公開手順を定型化する。
 `/skill:release-client-pack <環境ID>` で呼び出す（追加後は `/reload`）。
-MOD変更済みのmrpackを入力とし、公開版作成・Release公開・Discord通知確認・Issue記録を行う。
+MOD変更済みのpackwizデータを入力とし、Pages・Release公開・Discord通知確認・Issue記録を行う。
 リリース本文は変更項目のみ、Issueも短い箇条書きにする。サーバー操作・MOD変更は対象外。
 
-## packwizからの公開候補生成（試験運用）
+## packwizからの公開候補生成
 
-現行の正式リリース手順は引き続き `client.mrpack` を入力とする。
-packwiz移行の比較用に、URL参照のみの候補を別途生成できる。
+URL参照のみの候補を生成し、公開前にMOD差分とpolicy指紋を確認する。
 
 ```bash
 python3 scripts/packwiz-export.py mc-create-aeronautics \
@@ -25,9 +24,36 @@ python3 scripts/packwiz-export.py mc-create-aeronautics \
 packwiz CLIとネットワーク接続が必要。元データを一時コピーして書き出し、
 元のMOD一覧・URL・SHA-512と候補を照合し、JARや個人ファイルを同梱しない。
 既存出力は上書きしない。候補の指紋が未承認の場合は公開しない。
-現行の `prepare` / `publish` はこの候補を受け付けない。
-packwiz形式ではmrpackのサーバー側optionalを忠実に表せないため、
-クライアント配信用として扱う。配信・リリース運用への統合は未実装。
+公開mrpackは全MODをserver unsupportedとするクライアント専用。
+packwiz側もclient専用とし、サーバーMODの管理には使用しない。
+
+## packwizの公開
+
+本番でMOD・packwizを更新して検証し、パックのversionを増やす。
+前回Releaseとの差分をレビューし、候補指紋をpolicyに記録してコミットする。
+`packwiz-export.py` は候補生成用であり、公開の承認チェックを代替しない。
+
+```bash
+PACK_DIR="$HOME/apps/homeserver-gameserver-1/data/mc-create-aeronautics/packwiz"
+python3 scripts/packwiz-publish.py prepare mc-create-aeronautics --pack-dir "$PACK_DIR"
+# 生成された公開mrpackとRELEASE_NOTES.mdを確認・編集
+python3 scripts/pack-release.py publish mc-create-aeronautics VERSION --client-verified
+# draft確認後、Pagesを公開。対象環境以外を変更せず通常pushする。
+python3 scripts/packwiz-publish.py pages mc-create-aeronautics --pack-dir "$PACK_DIR" --version VERSION
+# gh run list等で対応するPagesデプロイとpack.toml/indexの反映を確認
+# 問題なければ gh release edit ... --draft=false でdraftを公開
+```
+
+`VERSION`は実際のバージョンに置き換える。Pages公開はクライアントに即時影響する。
+Pages成功後にRelease公開が失敗した場合は部分公開をIssueに記録し、むやみに再実行しない。
+`gh-pages`は専用の公開ブランチで、mainとのマージは不要。個人用ファイルは含めない。
+現行の公開URL: https://yuutaro.github.io/homeserver-gameserver-1/minecraft/mc-create-aeronautics/pack.toml
+packwiz installerによる既存Prismインスタンス移行時は古い未管理MODの残存に注意。
+
+## 旧client.mrpack方式
+
+以下は旧方式の参照用。現在のpackwiz用policy指紋とは異なり得るため、
+このままでは公開できない場合がある。
 
 ## 初期設定
 
@@ -48,7 +74,7 @@ gh auth status
 認証は原則ghの保存済み認証を利用し、トークンを重複保存しない。
 認証トークン・設定値をログに出さない。出力パスはローカル端末に表示される。
 
-## 更新から公開まで
+## 旧方式：更新から公開まで
 
 1. 従来どおり本番MODとclient.mrpackを更新（個人用schematicは維持）。
 2. サーバー・クライアントで動作確認し、パックのversionIdを増やす。

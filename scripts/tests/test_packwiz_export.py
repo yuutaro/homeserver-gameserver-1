@@ -45,6 +45,14 @@ class PackwizExportTest(unittest.TestCase):
         index = mod.validate_export(self.archive(self.index()), pack, expected, self.policy)
         self.assertEqual(index["files"][0]["path"], "mods/example.jar")
 
+    def test_both_side_is_exported_as_client_only(self):
+        self.meta.write_text(self.meta.read_text().replace('side="client"', 'side="both"'))
+        pack, expected = mod.read_sources(self.root, self.policy)
+        index = self.index()
+        index["files"][0]["env"]["server"] = "required"
+        result = mod.validate_export(self.archive(index), pack, expected, self.policy)
+        self.assertEqual(result["files"][0]["env"]["server"], "unsupported")
+
     def test_missing_or_changed_mod_rejected(self):
         pack, expected = mod.read_sources(self.root, self.policy)
         index = self.index()
