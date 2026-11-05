@@ -1,0 +1,8 @@
+name = "Randomize Filters Terrain Slabs Fix"
+filename = "randomizefilters-terrain-slabs-fix-1.0.1.jar"
+side = "client"
+
+[download]
+url = "https://github.com/yuutaro/randomizefilters-terrain-slabs-fix/releases/download/v1.0.1/randomizefilters-terrain-slabs-fix-1.0.1.jar"
+hash-format = "sha512"
+hash = "a2caa88c0505e24d630d8a861bbadc36ac3b246465f6909a0afc85bfdd09af18051ed2180dc6bc7a50a2080a5d6df05b2595e43577198d2a3f96995605ccc6a8"

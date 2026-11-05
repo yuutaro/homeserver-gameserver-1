@@ -231,6 +231,11 @@ hash = "f8d90a8b176520c514f727b8aa00e05625e24a126c7eb4b30765dda6879c294c"
 metafile = true
 
 [[files]]
+file = "mods/randomizefilters_terrain_slabs_fix.pw.toml"
+hash = "52d57493065fbbbb05f3bc323cddb8ec5b2156f1922dedee558c927a4823e3e1"
+metafile = true
+
+[[files]]
 file = "mods/ritchiesprojectilelib.pw.toml"
 hash = "50ee3e6e4f432d3a927efcc238527bcf440c36bf6347351fdfa725d86e809a6b"
 metafile = true
@@ -298,6 +303,11 @@ metafile = true
 [[files]]
 file = "mods/struts.pw.toml"
 hash = "58c7a3c0f77da2924fd7c4ca5ddbdd5d676ca64dde854b0ac34b026450af354a"
+metafile = true
+
+[[files]]
+file = "mods/terrain_slabs.pw.toml"
+hash = "c00a5b0edd47947eef9234a64f452a444a4957c24c99a22757dcc233e3605d1f"
 metafile = true
 
 [[files]]

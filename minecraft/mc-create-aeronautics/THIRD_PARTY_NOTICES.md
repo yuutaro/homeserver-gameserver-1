@@ -17,6 +17,8 @@ This manifest is not a grant to redistribute or monetize third-party work.
 - FramedBlocks 10.6.3 by XFactHD: LGPL-3.0-only. https://modrinth.com/mod/framedblocks . Unmodified official Modrinth download reference only.
 - Sophisticated Backpacks 3.26.19.2243 by P3pp3rF1y: All Rights Reserved; no binary redistribution or commercial-use permission is claimed. Unmodified official Modrinth download reference only, under the existing operator URL-only publication decision. https://modrinth.com/mod/sophisticated-backpacks ; https://github.com/P3pp3rF1y/SophisticatedBackpacks/blob/1.21.x/LICENSE.md .
 - Sophisticated Core 1.5.23.2446 by P3pp3rF1y: All Rights Reserved; no binary redistribution or commercial-use permission is claimed. Unmodified official Modrinth download reference only, under the existing operator URL-only publication decision. https://modrinth.com/mod/sophisticated-core ; https://github.com/P3pp3rF1y/SophisticatedCore/blob/1.21.x/LICENSE.md .
+- Randomize Filters Terrain Slabs Fix 1.0.1 by yuutaro: MIT License. Official versioned GitHub Release download reference only. https://github.com/yuutaro/randomizefilters-terrain-slabs-fix .
+- Countered's Terrain Slabs 3.1.2 by Countered!: MIT License. Official unmodified Modrinth download reference only. https://modrinth.com/mod/countereds-terrain-slabs ; https://github.com/Coun7ered/terrain_slabs_multiloader .
 - Full review record: docs/runbooks/client-pack-releases.md . This pack is not a legal clearance.
 
 ## Official download references
@@ -70,6 +72,7 @@ This manifest is not a grant to redistribute or monetize third-party work.
 - mods/kotlinforforge-5.12.0-all.jar: https://cdn.modrinth.com/data/ordsPcFz/versions/uhJhCT7X/kotlinforforge-5.12.0-all.jar
 - mods/ldlib2-neoforge-1.21.1-2.2.41-all.jar: https://edge.forgecdn.net/files/8940/836/ldlib2-neoforge-1.21.1-2.2.41-all.jar
 - mods/railways-0.3.0-beta.2+neoforge-mc1.21.1.jar: https://edge.forgecdn.net/files/8522/154/railways-0.3.0-beta.2%2bneoforge-mc1.21.1.jar
+- mods/randomizefilters-terrain-slabs-fix-1.0.1.jar: https://github.com/yuutaro/randomizefilters-terrain-slabs-fix/releases/download/v1.0.1/randomizefilters-terrain-slabs-fix-1.0.1.jar
 - mods/ritchiesprojectilelib-2.1.2+mc.1.21.1-neoforge.jar: https://cdn.modrinth.com/data/B3pb093D/versions/hZ6B2Z0x/ritchiesprojectilelib-2.1.2%2Bmc.1.21.1-neoforge.jar
 - mods/sable-neoforge-1.21.1-2.0.5.jar: https://cdn.modrinth.com/data/T9PomCSv/versions/U678xqle/sable-neoforge-1.21.1-2.0.5.jar
 - mods/sable-photomancy-1.0.1.jar: https://edge.forgecdn.net/files/8606/655/sable-photomancy-1.0.1.jar
@@ -82,6 +85,7 @@ This manifest is not a grant to redistribute or monetize third-party work.
 - mods/sophisticatedcore-1.21.1-1.5.23.2446.jar: https://cdn.modrinth.com/data/nmoqTijg/versions/yIF7JvxG/sophisticatedcore-1.21.1-1.5.23.2446.jar
 - mods/stabilized-1.0.2.jar: https://cdn.modrinth.com/data/vRmgUJhP/versions/TioAC4ED/stabilized-1.0.2.jar
 - mods/struts-1.3.1.jar: https://cdn.modrinth.com/data/sHO3MhQx/versions/BOTN7zzN/struts-1.3.1.jar
+- mods/terrain_slabs-neoforge-3.1.2.jar: https://cdn.modrinth.com/data/SJu6sklj/versions/1dYKrrP8/terrain_slabs-neoforge-3.1.2.jar
 - mods/tracks_plus-1.0.6b7.jar: https://cdn.modrinth.com/data/E8eHF2Yl/versions/qUDRhHla/tracks_plus-1.0.6b7.jar
 - mods/wthit-1.21.1-neo-12.10.2.jar: https://cdn.modrinth.com/data/6AQIaxuO/versions/IeXnWQRE/wthit-1.21.1-neo-12.10.2.jar
 - mods/xaerominimap-neoforge-1.21.1-26.5.0.jar: https://cdn.modrinth.com/data/1bokaNcj/versions/Q1tuMQBB/xaerominimap-neoforge-1.21.1-26.5.0.jar
