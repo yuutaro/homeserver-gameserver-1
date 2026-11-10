@@ -8,7 +8,7 @@
     "github.com"
   ],
   "publication_approved": true,
-  "reviewed_mod_manifest_sha256": "e4f92342093b11f182289f009bce5e01db0bbfaf62daa0aa741d14a4b7ef4887",
+  "reviewed_mod_manifest_sha256": "df50d107dbbb1467c7796f92e5d0beb053ccf290e70d7986cadb356f204ce152",
   "pending_permissions": [],
   "review_decision": "Approved by operator for unmodified official URL references on GitHub; no MOD binaries, third-party settings or schematics are redistributed. FTB excluded. Metadata ambiguities for Create Fluid/Sable Schematic Compat are not treated as blockers for this link-only distribution. This is an operational decision, not author consent or legal clearance.",
   "download_conversions": [
@@ -41,6 +41,8 @@
     "Sophisticated Core 1.5.23.2446 by P3pp3rF1y: All Rights Reserved; no binary redistribution or commercial-use permission is claimed. Unmodified official Modrinth download reference only, under the existing operator URL-only publication decision. https://modrinth.com/mod/sophisticated-core ; https://github.com/P3pp3rF1y/SophisticatedCore/blob/1.21.x/LICENSE.md .",
     "Randomize Filters Terrain Slabs Fix 1.0.1 by yuutaro: MIT License. Official versioned GitHub Release download reference only. https://github.com/yuutaro/randomizefilters-terrain-slabs-fix .",
     "Countered's Terrain Slabs 3.1.2 by Countered!: MIT License. Official unmodified Modrinth download reference only. https://modrinth.com/mod/countereds-terrain-slabs ; https://github.com/Coun7ered/terrain_slabs_multiloader .",
+    "GraveStone Mod 1.21.1-1.0.40 by Max Henkel: All Rights Reserved. Official unmodified Modrinth URL reference only under the existing operator link-only publication decision; no binary rehosting or author permission is claimed. https://modrinth.com/mod/gravestone-mod .",
+    "Build Guide 0.4.9 by brentmaas: CC-BY-NC-3.0; author permits modpack inclusion. Client-only, official unmodified download reference with attribution; review separately before monetization. https://modrinth.com/mod/build-guide .",
     "Full review record: docs/runbooks/client-pack-releases.md . This pack is not a legal clearance."
   ]
 }
