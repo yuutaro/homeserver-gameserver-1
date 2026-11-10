@@ -1,11 +1,11 @@
 name = "Create Aeronautics - Public Client Pack"
-version = "1.3.13"
+version = "1.3.14"
 pack-format = "packwiz:1.1.0"
 
 [index]
 file = "index.toml"
 hash-format = "sha256"
-hash = "ecd5a227046a2ad1dbce8beba9dcf75e9d107c821ae98831cda28d8cf03f697d"
+hash = "8af050125d1288bc200b59dfc38f7b83166925c7f42a66ace8f41656fb360aa6"
 
 [versions]
 minecraft = "1.21.1"

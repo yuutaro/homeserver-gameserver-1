@@ -19,10 +19,13 @@ This manifest is not a grant to redistribute or monetize third-party work.
 - Sophisticated Core 1.5.23.2446 by P3pp3rF1y: All Rights Reserved; no binary redistribution or commercial-use permission is claimed. Unmodified official Modrinth download reference only, under the existing operator URL-only publication decision. https://modrinth.com/mod/sophisticated-core ; https://github.com/P3pp3rF1y/SophisticatedCore/blob/1.21.x/LICENSE.md .
 - Randomize Filters Terrain Slabs Fix 1.0.1 by yuutaro: MIT License. Official versioned GitHub Release download reference only. https://github.com/yuutaro/randomizefilters-terrain-slabs-fix .
 - Countered's Terrain Slabs 3.1.2 by Countered!: MIT License. Official unmodified Modrinth download reference only. https://modrinth.com/mod/countereds-terrain-slabs ; https://github.com/Coun7ered/terrain_slabs_multiloader .
+- GraveStone Mod 1.21.1-1.0.40 by Max Henkel: All Rights Reserved. Official unmodified Modrinth URL reference only under the existing operator link-only publication decision; no binary rehosting or author permission is claimed. https://modrinth.com/mod/gravestone-mod .
+- Build Guide 0.4.9 by brentmaas: CC-BY-NC-3.0; author permits modpack inclusion. Client-only, official unmodified download reference with attribution; review separately before monetization. https://modrinth.com/mod/build-guide .
 - Full review record: docs/runbooks/client-pack-releases.md . This pack is not a legal clearance.
 
 ## Official download references
 
+- mods/BuildGuide-1.21-0.4.9.jar: https://cdn.modrinth.com/data/XwBDibES/versions/wxmM0C4H/BuildGuide-1.21-0.4.9.jar
 - mods/Create Encased-1.21.1-1.9.0-ht3.jar: https://edge.forgecdn.net/files/8549/840/Create%20Encased-1.21.1-1.9.0-ht3.jar
 - mods/CreateDragonsPlus-1.11.9.jar: https://cdn.modrinth.com/data/dzb1a5WV/versions/b0u9vk8C/CreateDragonsPlus-1.11.9.jar
 - mods/Design-n-Decor-1.21.1-2.2b.jar: https://edge.forgecdn.net/files/8156/977/Design-n-Decor-1.21.1-2.2b.jar
@@ -66,6 +69,7 @@ This manifest is not a grant to redistribute or monetize third-party work.
 - mods/effortlessbuilding-4.2+1.21.1.jar: https://cdn.modrinth.com/data/DYtfQEYj/versions/YxnBXtLv/effortlessbuilding-4.2%2B1.21.1.jar
 - mods/ferritecore-7.0.3-neoforge.jar: https://cdn.modrinth.com/data/uXXizFIs/versions/x7kQWVju/ferritecore-7.0.3-neoforge.jar
 - mods/fluid-2.1.6.jar: https://edge.forgecdn.net/files/8873/260/fluid-2.1.6.jar
+- mods/gravestone-neoforge-1.21.1-1.0.40.jar: https://cdn.modrinth.com/data/RYtXKJPr/versions/rMGJpjaM/gravestone-neoforge-1.21.1-1.0.40.jar
 - mods/interiors-0.6.1 v3.jar: https://edge.forgecdn.net/files/8974/633/interiors-0.6.1%20v3.jar
 - mods/jei-1.21.1-neoforge-19.51.0.418.jar: https://cdn.modrinth.com/data/u6dRKJwZ/versions/ufHUqt9b/jei-1.21.1-neoforge-19.51.0.418.jar
 - mods/kotlinforforge-5.12.0-all.jar: https://cdn.modrinth.com/data/ordsPcFz/versions/uhJhCT7X/kotlinforforge-5.12.0-all.jar

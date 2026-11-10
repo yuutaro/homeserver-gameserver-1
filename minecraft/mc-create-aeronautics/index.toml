@@ -36,6 +36,11 @@ hash = "802cd3772652e5bc2bdd5264f252cc7a57e876da5fd84e1b8c1a29bdcb18a38d"
 metafile = true
 
 [[files]]
+file = "mods/buildguide.pw.toml"
+hash = "f38dedb0fd391ff0f5454f03968dea8b578caa299a63129cbefe4cd27e3f9d55"
+metafile = true
+
+[[files]]
 file = "mods/copycats.pw.toml"
 hash = "3e728b040315378d79accb80462e22ccd9bd0b9078fec67b1838f0c30c3b9ed0"
 metafile = true
@@ -188,6 +193,11 @@ metafile = true
 [[files]]
 file = "mods/framedblocks.pw.toml"
 hash = "8e6ef18823108fe49b73cead6e4e16eb805b3d25cae06b5f70b33f004bae5a10"
+metafile = true
+
+[[files]]
+file = "mods/gravestone.pw.toml"
+hash = "b8bfcdb32a5af6074830f4a5259cb284a5e6a3b2f5fa6e0015af4f4fe69e37d7"
 metafile = true
 
 [[files]]
